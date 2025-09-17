@@ -1,0 +1,129 @@
+name: Deploy Website (Simple Echo Method)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'website_pages/**'
+      - '.github/workflows/deploy-simple-echo.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Deploy Website Files
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.XNEELO_SERVER_HOST }}
+          username: ${{ secrets.XNEELO_SERVER_USER }}
+          key: ${{ secrets.XNEELO_SSH_KEY }}
+          port: 22
+          timeout: 60s
+          script: |
+            echo "🚀 Starting Website Deployment..."
+            
+            # Find web root directory
+            WEB_ROOT=""
+            for dir in "/var/www/html" "/home/$(whoami)/public_html" "/usr/share/nginx/html"; do
+              if [ -d "$dir" ] && [ -w "$dir" 2>/dev/null ]; then
+                WEB_ROOT="$dir"
+                break
+              elif [ -d "$dir" ] && sudo test -w "$dir" 2>/dev/null; then
+                WEB_ROOT="$dir"
+                break
+              fi
+            done
+            
+            if [ -z "$WEB_ROOT" ]; then
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            echo "📂 Using web root: $WEB_ROOT"
+            
+            # Create temp directory
+            TEMP_DIR="/tmp/rozitech-deploy-$(date +%s)"
+            mkdir -p "$TEMP_DIR"
+            cd "$TEMP_DIR"
+            
+            # Create index.html using echo
+            echo '<!DOCTYPE html>' > index.html
+            echo '<html lang="en">' >> index.html
+            echo '<head>' >> index.html
+            echo '    <meta charset="UTF-8">' >> index.html
+            echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> index.html
+            echo '    <title>Rozitech - Enterprise SaaS Solutions</title>' >> index.html
+            echo '    <style>' >> index.html
+            echo '        * { margin: 0; padding: 0; box-sizing: border-box; }' >> index.html
+            echo '        body { font-family: "Segoe UI", sans-serif; color: #2c3e50; }' >> index.html
+            echo '        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 100px 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }' >> index.html
+            echo '        .hero-content { max-width: 800px; }' >> index.html
+            echo '        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; font-weight: bold; }' >> index.html
+            echo '        .hero p { font-size: 1.3rem; margin-bottom: 40px; opacity: 0.9; }' >> index.html
+            echo '        .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }' >> index.html
+            echo '        .btn-primary, .btn-secondary { padding: 15px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; text-decoration: none; transition: all 0.3s ease; cursor: pointer; border: none; display: inline-block; }' >> index.html
+            echo '        .btn-primary { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; border: 2px solid white; }' >> index.html
+            echo '        .btn-primary:hover { background: white; color: #667eea; transform: translateY(-2px); }' >> index.html
+            echo '        .btn-secondary { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.5); }' >> index.html
+            echo '        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: white; transform: translateY(-2px); }' >> index.html
+            echo '        @media (max-width: 768px) { .hero h1 { font-size: 2.5rem; } .hero p { font-size: 1.1rem; } .hero-buttons { flex-direction: column; align-items: center; } .btn-primary, .btn-secondary { width: 100%; max-width: 300px; } }' >> index.html
+            echo '    </style>' >> index.html
+            echo '</head>' >> index.html
+            echo '<body>' >> index.html
+            echo '    <section class="hero">' >> index.html
+            echo '        <div class="hero-content">' >> index.html
+            echo '            <h1>Enterprise SaaS Solutions for Modern Business</h1>' >> index.html
+            echo '            <p>Transform your business operations with our comprehensive multi-tenant platform. Built for insurance companies, designed for growth, optimized for South Africa.</p>' >> index.html
+            echo '            <div class="hero-buttons">' >> index.html
+            echo '                <a href="get-started.html" class="btn-primary">Get Started</a>' >> index.html
+            echo '                <a href="learn-more.html" class="btn-secondary">Learn More</a>' >> index.html
+            echo '            </div>' >> index.html
+            echo '        </div>' >> index.html
+            echo '    </section>' >> index.html
+            echo '</body>' >> index.html
+            echo '</html>' >> index.html
+            
+            # Create get-started.html using echo
+            echo '<!DOCTYPE html>' > get-started.html
+            echo '<html lang="en"><head><meta charset="UTF-8"><title>Get Started - Rozitech</title>' >> get-started.html
+            echo '<style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: "Segoe UI", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; } .container { max-width: 1200px; margin: 0 auto; } .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 30px; text-align: center; } .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; } .plan { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; text-align: center; } .price { font-size: 3rem; color: #27ae60; font-weight: bold; margin-bottom: 20px; } .btn { background: #3498db; color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; display: inline-block; margin: 5px; } .back-btn { position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 25px; text-decoration: none; color: #333; }</style>' >> get-started.html
+            echo '</head><body><a href="index.html" class="back-btn">← Back</a><div class="container"><div class="header"><h1>🚀 Get Started with Insurr</h1></div><div class="plans"><div class="plan"><h3>Starter</h3><div class="price">R299</div><p>per month</p><a href="mailto:hello@rozitech.com?subject=Free Trial - Starter" class="btn">Start Trial</a></div><div class="plan"><h3>Professional</h3><div class="price">R799</div><p>per month</p><a href="mailto:hello@rozitech.com?subject=Free Trial - Professional" class="btn">Start Trial</a></div><div class="plan"><h3>Enterprise</h3><div class="price">R1,999</div><p>per month</p><a href="mailto:hello@rozitech.com?subject=Enterprise Inquiry" class="btn">Contact Sales</a></div></div></div></body></html>' >> get-started.html
+            
+            # Create learn-more.html using echo
+            echo '<!DOCTYPE html>' > learn-more.html
+            echo '<html lang="en"><head><meta charset="UTF-8"><title>Learn More - Rozitech</title>' >> learn-more.html
+            echo '<style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: "Segoe UI", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; } .container { max-width: 1200px; margin: 0 auto; } .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 40px; margin-bottom: 30px; text-align: center; } .content { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; margin-bottom: 30px; } .back-btn { position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 25px; text-decoration: none; color: #333; }</style>' >> learn-more.html
+            echo '</head><body><a href="index.html" class="back-btn">← Back</a><div class="container"><div class="header"><h1>🏥 Learn More About Insurr</h1><p>South Africa'"'"'s most comprehensive insurance management platform.</p></div><div class="content"><h2>🎯 What Makes Insurr Different?</h2><p>Multi-tenant insurance management platform designed for South African insurance companies.</p><h3>Key Features:</h3><ul><li>Complete Policy Lifecycle Management</li><li>Automated Claims Processing</li><li>Multi-Tenant Architecture</li><li>South African Compliance (POPIA)</li></ul></div></div></body></html>' >> learn-more.html
+            
+            echo "✅ Website files created"
+            
+            # Deploy files
+            if sudo cp *.html "$WEB_ROOT/" 2>/dev/null; then
+              echo "✅ Files deployed with sudo"
+              sudo chmod 644 "$WEB_ROOT"/*.html 2>/dev/null || true
+            elif cp *.html "$WEB_ROOT/" 2>/dev/null; then
+              echo "✅ Files deployed"
+            else
+              echo "❌ Deployment failed"
+              exit 1
+            fi
+            
+            # Verify
+            if [ -f "$WEB_ROOT/index.html" ]; then
+              echo "✅ index.html deployed"
+            fi
+            if [ -f "$WEB_ROOT/get-started.html" ]; then
+              echo "✅ get-started.html deployed"
+            fi
+            if [ -f "$WEB_ROOT/learn-more.html" ]; then
+              echo "✅ learn-more.html deployed"
+            fi
+            
+            # Cleanup
+            rm -rf "$TEMP_DIR"
+            
+            echo "🎉 Deployment Complete!"
