@@ -211,4 +211,4 @@ certbot/
 
 # CI/CD secrets
 github-deploy-key
-github-deploy-key.pub
+github-deploy-key.pubrozitech-saas.tar.gz
