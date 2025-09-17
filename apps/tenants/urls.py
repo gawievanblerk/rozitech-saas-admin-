@@ -10,7 +10,7 @@ app_name = 'tenants'
 # API Router
 router = DefaultRouter()
 router.register(r'tenants', views.TenantViewSet)
-router.register(r'invitations', views.TenantInvitationViewSet)
+# router.register(r'invitations', views.TenantInvitationViewSet)
 
 urlpatterns = [
     # API endpoints
@@ -20,5 +20,5 @@ urlpatterns = [
     path('tenant-setup/', views.TenantSetupView.as_view(), name='tenant-setup'),
     path('current-tenant/', views.CurrentTenantView.as_view(), name='current-tenant'),
     path('switch-tenant/<uuid:tenant_id>/', views.SwitchTenantView.as_view(), name='switch-tenant'),
-    path('invitation/accept/<uuid:token>/', views.AcceptInvitationView.as_view(), name='accept-invitation'),
+    # path('invitation/accept/<uuid:token>/', views.AcceptInvitationView.as_view(), name='accept-invitation'),
 ]

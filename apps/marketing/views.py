@@ -16,12 +16,28 @@ from apps.subscriptions.models import PricingPlan
 def homepage(request):
     """Landing page"""
     context = {
-        'featured_services': Service.objects.filter(is_featured=True, is_public=True)[:3],
-        'pricing_plans': PricingPlan.objects.filter(is_active=True).order_by('monthly_price')[:3],
-        'page_title': 'Rozitech SaaS Platform - Multi-Tenant Business Solutions',
-        'meta_description': 'Scale your business with our comprehensive SaaS platform. Multi-tenant architecture, automated provisioning, and enterprise-grade security.'
+        'page_title': 'Rozitech - Enterprise SaaS Solutions for Modern Business',
+        'meta_description': 'Transform your business operations with our comprehensive multi-tenant platform. Built for insurance companies, designed for growth, optimized for South Africa.'
     }
-    return render(request, 'marketing/homepage.html', context)
+    return render(request, 'marketing/index.html', context)
+
+
+def get_started(request):
+    """Get Started / Pricing page"""
+    context = {
+        'page_title': 'Get Started - Rozitech Insurr Platform',
+        'meta_description': 'Choose your plan and transform your insurance operations today. Starter, Professional, and Enterprise plans available.'
+    }
+    return render(request, 'marketing/get-started.html', context)
+
+
+def learn_more(request):
+    """Learn More / Product Information page"""
+    context = {
+        'page_title': 'Learn More - Rozitech Insurr Platform',
+        'meta_description': 'Discover how our comprehensive insurance management platform transforms the way insurance companies operate.'
+    }
+    return render(request, 'marketing/learn-more.html', context)
 
 
 def pricing(request):

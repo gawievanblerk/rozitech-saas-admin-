@@ -1,0 +1,26 @@
+{
+  "name": "rozitech-saas-admin",
+  "version": "1.0.0",
+  "description": "A comprehensive multi-tenant SaaS administration platform for managing subscriptions, billing, and service orchestration across the Rozitech ecosystem.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gawievanblerk/rozitech-saas-admin-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gawievanblerk/rozitech-saas-admin-/issues"
+  },
+  "homepage": "https://github.com/gawievanblerk/rozitech-saas-admin-#readme",
+  "devDependencies": {
+    "cypress": "^15.2.0"
+  }
+}

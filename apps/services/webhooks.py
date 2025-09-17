@@ -10,7 +10,7 @@ import hashlib
 import hmac
 import json
 
-from apps.tenants.models import Tenant
+from apps.tenants.models import Organization as Tenant
 
 logger = logging.getLogger(__name__)
 

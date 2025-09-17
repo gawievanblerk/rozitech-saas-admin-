@@ -8,11 +8,11 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django_tenants.utils import schema_context
-from .models import Tenant, TenantUser, TenantInvitation
+from .models import Organization as Tenant, OrganizationUser as TenantUser
 from .serializers import (
-    TenantSerializer, TenantCreateSerializer, TenantUserSerializer,
-    TenantInvitationSerializer, TenantInvitationCreateSerializer,
-    AcceptInvitationSerializer, TenantSwitchSerializer
+    TenantSerializer, TenantCreateSerializer, TenantUserSerializer
+    # TenantInvitationSerializer, TenantInvitationCreateSerializer,
+    # AcceptInvitationSerializer, TenantSwitchSerializer
 )
 
 
@@ -39,19 +39,19 @@ class TenantViewSet(viewsets.ModelViewSet):
             tenant_users__is_active=True
         ).distinct()
     
-    @action(detail=True, methods=['post'])
-    def invite_user(self, request, pk=None):
-        """Invite a user to join the tenant"""
-        tenant = self.get_object()
-        serializer = TenantInvitationCreateSerializer(
-            data=request.data,
-            context={'request': request}
-        )
-        
-        if serializer.is_valid():
-            serializer.save(tenant=tenant)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @action(detail=True, methods=['post'])
+    # def invite_user(self, request, pk=None):
+    #     """Invite a user to join the tenant"""
+    #     tenant = self.get_object()
+    #     serializer = TenantInvitationCreateSerializer(
+    #         data=request.data,
+    #         context={'request': request}
+    #     )
+    #     
+    #     if serializer.is_valid():
+    #         serializer.save(tenant=tenant)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=True, methods=['get'])
     def users(self, request, pk=None):
@@ -87,29 +87,29 @@ class TenantViewSet(viewsets.ModelViewSet):
         return Response(stats)
 
 
-class TenantInvitationViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing tenant invitations
-    """
-    queryset = TenantInvitation.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return TenantInvitationCreateSerializer
-        return TenantInvitationSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return TenantInvitation.objects.all()
-        
-        # Return only invitations for tenants where user has admin access
-        return TenantInvitation.objects.filter(
-            tenant__tenant_users__user=user,
-            tenant__tenant_users__role__in=['owner', 'admin'],
-            tenant__tenant_users__is_active=True
-        ).distinct()
+# class TenantInvitationViewSet(viewsets.ModelViewSet):
+#     """
+#     ViewSet for managing tenant invitations
+#     """
+#     queryset = TenantInvitation.objects.all()
+#     permission_classes = [permissions.IsAuthenticated]
+#     
+#     def get_serializer_class(self):
+#         if self.action == 'create':
+#             return TenantInvitationCreateSerializer
+#         return TenantInvitationSerializer
+#     
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.is_superuser:
+#             return TenantInvitation.objects.all()
+#         
+#         # Return only invitations for tenants where user has admin access
+#         return TenantInvitation.objects.filter(
+#             tenant__tenant_users__user=user,
+#             tenant__tenant_users__role__in=['owner', 'admin'],
+#             tenant__tenant_users__is_active=True
+#         ).distinct()
 
 
 class TenantSetupView(APIView):
@@ -208,40 +208,40 @@ class SwitchTenantView(APIView):
         return Response(data)
 
 
-class AcceptInvitationView(APIView):
-    """
-    Accept a tenant invitation
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self, request, token):
-        try:
-            invitation = TenantInvitation.objects.get(token=token)
-        except TenantInvitation.DoesNotExist:
-            return Response(
-                {'error': 'Invalid invitation token'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        if invitation.is_expired:
-            return Response(
-                {'error': 'Invitation has expired'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if invitation.status != 'pending':
-            return Response(
-                {'error': 'Invitation is no longer valid'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Accept invitation
-        try:
-            tenant_user = invitation.accept(request.user)
-            serializer = TenantUserSerializer(tenant_user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ValueError as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+# class AcceptInvitationView(APIView):
+#     """
+#     Accept a tenant invitation
+#     """
+#     permission_classes = [permissions.IsAuthenticated]
+#     
+#     def post(self, request, token):
+#         try:
+#             invitation = TenantInvitation.objects.get(token=token)
+#         except TenantInvitation.DoesNotExist:
+#             return Response(
+#                 {'error': 'Invalid invitation token'},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+#         
+#         if invitation.is_expired:
+#             return Response(
+#                 {'error': 'Invitation has expired'},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         
+#         if invitation.status != 'pending':
+#             return Response(
+#                 {'error': 'Invitation is no longer valid'},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         
+#         # Accept invitation
+#         try:
+#             tenant_user = invitation.accept(request.user)
+#             serializer = TenantUserSerializer(tenant_user)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         except ValueError as e:
+#             return Response(
+#                 {'error': str(e)},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )

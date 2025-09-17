@@ -9,6 +9,8 @@ app_name = 'marketing'
 urlpatterns = [
     # Main marketing pages
     path('', views.homepage, name='homepage'),
+    path('get-started/', views.get_started, name='get_started'),
+    path('learn-more/', views.learn_more, name='learn_more'),
     path('pricing/', views.pricing, name='pricing'),
     path('features/', views.features, name='features'),
     path('about/', views.about, name='about'),

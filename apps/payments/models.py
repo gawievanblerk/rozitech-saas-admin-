@@ -82,7 +82,7 @@ class PaymentMethod(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # Relationships
-    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.CASCADE, related_name='payment_methods')
+    tenant = models.ForeignKey('tenants.Organization', on_delete=models.CASCADE, related_name='payment_methods')
     provider = models.ForeignKey(PaymentProvider, on_delete=models.CASCADE, related_name='payment_methods')
     
     # Payment method details
@@ -163,7 +163,7 @@ class Transaction(models.Model):
     reference = models.CharField(max_length=100, unique=True, help_text="Unique transaction reference")
     
     # Relationships
-    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.CASCADE, related_name='transactions')
+    tenant = models.ForeignKey('tenants.Organization', on_delete=models.CASCADE, related_name='transactions')
     invoice = models.ForeignKey('subscriptions.Invoice', on_delete=models.CASCADE, blank=True, null=True, related_name='transactions')
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, blank=True, null=True)
     provider = models.ForeignKey(PaymentProvider, on_delete=models.CASCADE, related_name='transactions')

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn More - Rozitech Insurr Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .content-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border-left: 5px solid #3498db;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .scenario-section {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+        
+        .scenario-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .scenario-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .step-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .step-number {
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        
+        .tech-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .spec-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .spec-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .spec-list {
+            list-style: none;
+        }
+        
+        .spec-list li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .spec-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-button {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .cta-button:hover {
+            background: white;
+            color: #e84393;
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .demo-video {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin: 30px 0;
+        }
+        
+        .breadcrumb {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #27ae60;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()">← Back to Home</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Learn More About Insurr</h1>
+            <p class="subtitle">
+                Discover how our comprehensive insurance management platform transforms the way insurance companies operate, 
+                from policy creation to claims processing and everything in between.
+            </p>
+        </div>
+        
+        <div class="breadcrumb">
+            <a href="/">Home</a> → <strong>Learn More</strong>
+        </div>
+        
+        <div class="content-section">
+            <h2>🎯 What Makes Insurr Different?</h2>
+            <p>Insurr is South Africa's most comprehensive multi-tenant insurance management platform, designed specifically for insurance companies who want to modernize their operations while maintaining the personal touch that African markets demand.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Uptime SLA</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Support</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">Insurance Companies</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">1M+</span>
+                    <span class="stat-label">Policies Managed</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏢</div>
+                <div class="feature-title">Multi-Tenant Architecture</div>
+                <p>Each insurance company gets their own secure, isolated environment while sharing the platform infrastructure. Perfect for insurance brokers managing multiple companies or large enterprises with different divisions.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <div class="feature-title">Complete Policy Lifecycle</div>
+                <p>From initial quote to policy issuance, premium collection, and renewal management. Handle all types of insurance including life, funeral, motor, and property insurance.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Automated Claims Processing</div>
+                <p>Streamlined claims workflow with automated document verification, fraud detection, and multi-step approval processes. Reduce processing time from weeks to days.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-title">Customer Self-Service Portal</div>
+                <p>Empower your customers to view policies, submit claims, track progress, and make payments online. Reduce call center load and improve customer satisfaction.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Advanced Analytics & Reporting</div>
+                <p>Real-time dashboards, regulatory compliance reports, and business intelligence tools. Make data-driven decisions with comprehensive insights into your operations.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">Enterprise Security</div>
+                <p>Bank-level security with encryption at rest and in transit, role-based access control, and comprehensive audit trails. POPIA and industry compliance built-in.</p>
+            </div>
+        </div>
+        
+        <div class="scenario-section">
+            <div class="scenario-title">👨‍🌾 Real-World Example: Farmer Brown</div>
+            <p style="text-align: center; font-size: 1.2rem; margin-bottom: 30px;">
+                See how our platform handles a typical funeral insurance scenario from policy creation to claim payout.
+            </p>
+            
+            <div class="scenario-steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Policy Creation</h4>
+                    <p>Johannes Brown (65) signs up for R15,000 funeral coverage with R125 monthly premiums. System handles KYC, underwriting, and policy activation.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Beneficiary Setup</h4>
+                    <p>Maria Brown (spouse) is registered as 100% beneficiary with all contact details and relationship verification completed automatically.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Claim Submission</h4>
+                    <p>After Johannes passes away, Maria submits a death claim online with required documentation. System automatically validates and routes for processing.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Automated Processing</h4>
+                    <p>Multi-step workflow: Initial review → Medical verification → Final approval → Payment processing. All tracked in real-time with notifications.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <h4>Payment & Closure</h4>
+                    <p>R15,000 paid to Maria's bank account via EFT. Complete audit trail maintained for regulatory compliance and customer transparency.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>🛠️ Technical Specifications</h2>
+            
+            <div class="tech-specs">
+                <div class="spec-card">
+                    <div class="spec-title">Platform & Infrastructure</div>
+                    <ul class="spec-list">
+                        <li>Django 4.2+ with Python 3.11+</li>
+                        <li>PostgreSQL 15+ with tenant partitioning</li>
+                        <li>Redis 7+ for caching and queues</li>
+                        <li>Docker & Kubernetes deployment</li>
+                        <li>AWS/Azure cloud hosting</li>
+                        <li>99.9% uptime SLA</li>
+                    </ul>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-title">Security & Compliance</div>
+                    <ul class="spec-list">
+                        <li>AES-256 encryption at rest</li>
+                        <li>TLS 1.3 for data in transit</li>
+                        <li>POPIA compliance built-in</li>
+                        <li>Role-based access control</li>
+                        <li>Comprehensive audit logging</li>
+                        <li>Regular security assessments</li>
+                    </ul>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-title">Integrations & APIs</div>
+                    <ul class="spec-list">
+                        <li>RESTful API with OpenAPI docs</li>
+                        <li>Webhook support for real-time events</li>
+                        <li>Payment gateway integrations</li>
+                        <li>SMS and email providers</li>
+                        <li>Document management systems</li>
+                        <li>Third-party credit bureaus</li>
+                    </ul>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-title">Supported Insurance Types</div>
+                    <ul class="spec-list">
+                        <li>Funeral insurance</li>
+                        <li>Life insurance</li>
+                        <li>Motor vehicle insurance</li>
+                        <li>Property insurance</li>
+                        <li>Credit life insurance</li>
+                        <li>Custom product types</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-video">
+            <h2>🎬 Watch Insurr in Action</h2>
+            <p>See a live demonstration of the complete Farmer Brown scenario from policy creation to claim payout.</p>
+            <br>
+            <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 10px; margin: 20px 0;">
+                <p>🎥 <strong>Demo Video Coming Soon!</strong></p>
+                <p>Our team is preparing a comprehensive walkthrough showing:</p>
+                <ul style="text-align: left; display: inline-block; margin-top: 15px;">
+                    <li>Admin dashboard navigation</li>
+                    <li>Policy creation workflow</li>
+                    <li>Claims processing pipeline</li>
+                    <li>Customer portal features</li>
+                    <li>Reporting and analytics</li>
+                </ul>
+            </div>
+            <a href="mailto:hello@rozitech.com?subject=Demo Video Request" class="cta-button">📧 Request Demo Video</a>
+        </div>
+        
+        <div class="content-section">
+            <h2>🇿🇦 Built for South Africa</h2>
+            <p>Insurr is designed specifically for the South African insurance market, with deep understanding of local regulations, customer expectations, and business practices.</p>
+            
+            <div class="features-grid" style="margin-top: 30px;">
+                <div class="feature-card">
+                    <div class="feature-icon">📜</div>
+                    <div class="feature-title">POPIA Compliance</div>
+                    <p>Full compliance with the Protection of Personal Information Act, including consent management, data portability, and right to be forgotten.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🏦</div>
+                    <div class="feature-title">Local Banking Integration</div>
+                    <p>Direct integration with major South African banks for premium collection and claims payment via EFT and other local payment methods.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Mobile-First Design</div>
+                    <p>Optimized for mobile devices commonly used in South Africa, with offline capabilities and low-bandwidth optimization.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">Multi-Language Support</div>
+                    <p>Support for English, Afrikaans, and major African languages, ensuring accessibility for all South African customers.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2>🚀 Ready to Transform Your Insurance Operations?</h2>
+            <p>Join leading South African insurance companies who trust Insurr to power their digital transformation.</p>
+            <br>
+            <a href="get-started.html" class="cta-button">Start Free Trial</a>
+            <a href="mailto:hello@rozitech.com?subject=Schedule Demo" class="cta-button">Schedule Demo</a>
+            <a href="tel:+27111234567" class="cta-button">Call Sales</a>
+        </div>
+    </div>
+    
+    <script>
+        // Add smooth scrolling and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate sections on scroll
+            const sections = document.querySelectorAll('.content-section, .feature-card, .spec-card');
+            
+            function animateOnScroll() {
+                sections.forEach(section => {
+                    const sectionTop = section.getBoundingClientRect().top;
+                    const sectionVisible = 100;
+                    
+                    if (sectionTop < window.innerHeight - sectionVisible) {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }
+                });
+            }
+            
+            // Set initial state
+            sections.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+                section.style.transition = 'all 0.6s ease';
+            });
+            
+            // Animate immediately for visible sections
+            setTimeout(animateOnScroll, 100);
+            
+            // Animate on scroll
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // Add click tracking for analytics
+            document.querySelectorAll('.cta-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // In production, this would send analytics data
+                    console.log('CTA clicked:', this.textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -154,7 +154,7 @@ class TenantService(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # Relationships
-    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.CASCADE, related_name='tenant_services')
+    tenant = models.ForeignKey('tenants.Organization', on_delete=models.CASCADE, related_name='tenant_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='tenant_instances')
     
     # Instance details
