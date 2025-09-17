@@ -1,0 +1,81 @@
+name: Rollback Website Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_timestamp:
+        description: 'Backup timestamp to restore (YYYYMMDD-HHMMSS)'
+        required: false
+        default: 'latest'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.XNEELO_SSH_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.XNEELO_SERVER_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Rollback Website
+        run: |
+          ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
+            set -e
+            
+            echo "🔄 Starting website rollback..."
+            
+            # Find web root
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            else
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            echo "📂 Using web root: $WEB_ROOT"
+            
+            # Find backup file
+            BACKUP_FILE=""
+            if [ "${{ github.event.inputs.backup_timestamp }}" = "latest" ]; then
+              BACKUP_FILE=$(ls -t "$WEB_ROOT"/index.html.backup-* 2>/dev/null | head -1)
+            else
+              BACKUP_FILE="$WEB_ROOT/index.html.backup-${{ github.event.inputs.backup_timestamp }}"
+            fi
+            
+            if [ -f "$BACKUP_FILE" ]; then
+              echo "📦 Restoring from backup: $BACKUP_FILE"
+              sudo cp "$BACKUP_FILE" "$WEB_ROOT/index.html"
+              
+              # Remove the new pages
+              sudo rm -f "$WEB_ROOT/get-started.html" "$WEB_ROOT/learn-more.html"
+              
+              # Reload web server
+              if command -v nginx >/dev/null; then
+                sudo systemctl reload nginx
+              elif command -v apache2ctl >/dev/null; then
+                sudo systemctl reload apache2
+              fi
+              
+              echo "✅ Rollback completed successfully!"
+            else
+              echo "❌ No backup file found"
+              echo "Available backups:"
+              ls -la "$WEB_ROOT"/index.html.backup-* 2>/dev/null || echo "No backups available"
+              exit 1
+            fi
+            
+          ENDSSH
+      
+      - name: Verify Rollback
+        run: |
+          echo "🧪 Verifying rollback..."
+          ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} "curl -s http://localhost/ | head -20"

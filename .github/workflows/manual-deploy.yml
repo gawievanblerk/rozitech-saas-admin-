@@ -1,0 +1,146 @@
+name: Manual Website Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Type of deployment'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - quick-fix
+        - files-only
+      skip_backup:
+        description: 'Skip backing up current files'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.XNEELO_SSH_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.XNEELO_SERVER_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy Website
+        run: |
+          echo "🚀 Manual deployment started"
+          echo "Type: ${{ github.event.inputs.deployment_type }}"
+          echo "Skip backup: ${{ github.event.inputs.skip_backup }}"
+          
+          # Create lightweight package for deployment
+          tar -czf website-files.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='cypress' \
+            --exclude='*.pyc' \
+            quick-deploy/ website_pages/
+          
+          # Upload to server
+          scp website-files.tar.gz ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }}:/tmp/
+          
+          # Deploy on server
+          ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
+            set -e
+            
+            echo "🚀 Deploying website files..."
+            
+            # Find web root
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            else
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            echo "📂 Web root: $WEB_ROOT"
+            
+            # Backup existing files (unless skipped)
+            if [ "${{ github.event.inputs.skip_backup }}" != "true" ]; then
+              if [ -f "$WEB_ROOT/index.html" ]; then
+                echo "📦 Backing up existing files..."
+                sudo cp "$WEB_ROOT/index.html" "$WEB_ROOT/index.html.backup-$(date +%Y%m%d-%H%M%S)" || true
+              fi
+            fi
+            
+            # Extract and deploy
+            cd /tmp
+            tar -xzf website-files.tar.gz
+            
+            if [ "${{ github.event.inputs.deployment_type }}" = "quick-fix" ]; then
+              echo "⚡ Quick fix deployment"
+              sudo cp quick-deploy/index.html "$WEB_ROOT/" || true
+            else
+              echo "📄 Full file deployment"
+              sudo cp quick-deploy/index.html "$WEB_ROOT/" || sudo cp website_pages/index-example.html "$WEB_ROOT/index.html"
+              sudo cp quick-deploy/get-started.html "$WEB_ROOT/" || sudo cp website_pages/get-started.html "$WEB_ROOT/"
+              sudo cp quick-deploy/learn-more.html "$WEB_ROOT/" || sudo cp website_pages/learn-more.html "$WEB_ROOT/"
+            fi
+            
+            # Set permissions
+            sudo chown -R www-data:www-data "$WEB_ROOT"/*.html 2>/dev/null || sudo chown -R nginx:nginx "$WEB_ROOT"/*.html 2>/dev/null || true
+            sudo chmod 644 "$WEB_ROOT"/*.html || true
+            
+            # Reload web server
+            if command -v nginx >/dev/null; then
+              sudo systemctl reload nginx && echo "✅ Nginx reloaded"
+            elif command -v apache2ctl >/dev/null; then
+              sudo systemctl reload apache2 && echo "✅ Apache reloaded"
+            fi
+            
+            # Cleanup
+            rm -f /tmp/website-files.tar.gz
+            rm -rf /tmp/quick-deploy /tmp/website_pages
+            
+            echo "✅ Manual deployment completed!"
+            echo "📋 Deployed files:"
+            ls -la "$WEB_ROOT"/*.html | grep -E "(index|get-started|learn-more)" || true
+            
+          ENDSSH
+      
+      - name: Test Deployment
+        run: |
+          echo "🧪 Testing deployment..."
+          ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
+            # Quick content test
+            if grep -q "href=\"get-started.html\"" /var/www/html/index.html 2>/dev/null || grep -q "href=\"get-started.html\"" /home/$USER/public_html/index.html 2>/dev/null; then
+              echo "✅ Get Started button properly linked"
+            else
+              echo "❌ Get Started button link not found"
+            fi
+            
+            if command -v curl >/dev/null; then
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null || echo "000")
+              echo "🌐 HTTP Status: $HTTP_CODE"
+            fi
+          ENDSSH
+      
+      - name: Deployment Summary
+        run: |
+          echo "🎉 Manual Deployment Complete!"
+          echo "================================"
+          echo ""
+          echo "📱 Test URLs:"
+          echo "   • https://rozitech.com/"
+          echo "   • https://rozitech.com/get-started.html"
+          echo "   • https://rozitech.com/learn-more.html"
+          echo ""
+          echo "🔧 Deployment Type: ${{ github.event.inputs.deployment_type }}"
+          echo "📦 Backup Created: ${{ github.event.inputs.skip_backup == 'false' && 'Yes' || 'No' }}"

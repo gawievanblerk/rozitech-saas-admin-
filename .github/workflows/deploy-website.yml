@@ -29,7 +29,7 @@ jobs:
       - name: Test SSH Connection
         run: |
           echo "Testing SSH connection to production server..."
-          ssh -o ConnectTimeout=10 ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} "echo 'SSH connection successful' && whoami && pwd"
+          ssh -o ConnectTimeout=10 ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} "echo 'SSH connection successful' && whoami && pwd && ls -la"
       
       - name: Create Deployment Archive
         run: |
@@ -54,97 +54,76 @@ jobs:
           echo "Uploading application to server..."
           scp rozitech-website.tar.gz ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }}:/tmp/
       
-      - name: Deploy Application
+      - name: Deploy Website Files
         run: |
           ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
             set -e
             
             echo "🚀 Starting Rozitech Website Deployment..."
             
-            # Setup directories
-            sudo mkdir -p /opt/rozitech-saas
-            cd /opt/rozitech-saas
-            
-            # Backup existing deployment if it exists
-            if [ -d "current" ]; then
-              echo "📦 Backing up current deployment..."
-              sudo mv current backup-$(date +%Y%m%d-%H%M%S) || true
+            # Find the web root directory
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            else
+              echo "❌ Could not find web root directory"
+              exit 1
             fi
             
-            # Create new deployment directory
-            sudo mkdir -p current
-            cd current
+            echo "📂 Using web root: $WEB_ROOT"
             
-            # Extract new code
-            echo "📥 Extracting new application code..."
-            sudo tar -xzf /tmp/rozitech-website.tar.gz
+            # Backup existing index.html
+            if [ -f "$WEB_ROOT/index.html" ]; then
+              echo "📦 Backing up existing website..."
+              sudo cp "$WEB_ROOT/index.html" "$WEB_ROOT/index.html.backup-$(date +%Y%m%d-%H%M%S)" || true
+            fi
             
-            # Create environment file
-            echo "⚙️ Setting up environment..."
-            sudo tee .env << EOF
-            DJANGO_SETTINGS_MODULE=config.settings.production
-            SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            ALLOWED_HOSTS=rozitech.com,www.rozitech.com,rozitech.co.za,www.rozitech.co.za,${{ secrets.XNEELO_SERVER_HOST }}
-            DEBUG=False
-            EOF
+            # Create deployment directory
+            mkdir -p /tmp/rozitech-deploy
+            cd /tmp/rozitech-deploy
             
-            # Make scripts executable
-            sudo chmod +x deploy-website.sh || true
+            # Extract uploaded files
+            echo "📥 Extracting new website files..."
+            tar -xzf /tmp/rozitech-website.tar.gz
             
-            # Check if Docker is available
-            if command -v docker &> /dev/null; then
-              echo "🐳 Docker found, deploying with containers..."
-              
-              # Build and deploy with Docker
-              sudo docker build -f Dockerfile.production -t rozitech-saas:latest . || echo "Docker build skipped"
-              
-              # Stop existing containers
-              sudo docker-compose -f docker-compose.production.yml down || true
-              
-              # Start new containers
-              sudo docker-compose -f docker-compose.production.yml up -d || echo "Container deployment skipped"
-              
+            # Deploy the quick-deploy files (our working website)
+            echo "🌐 Deploying website files..."
+            if [ -d "quick-deploy" ]; then
+              sudo cp quick-deploy/index.html "$WEB_ROOT/" || sudo cp website_pages/index-example.html "$WEB_ROOT/index.html"
+              sudo cp quick-deploy/get-started.html "$WEB_ROOT/" || sudo cp website_pages/get-started.html "$WEB_ROOT/"
+              sudo cp quick-deploy/learn-more.html "$WEB_ROOT/" || sudo cp website_pages/learn-more.html "$WEB_ROOT/"
             else
-              echo "📄 Docker not available, deploying static files..."
-              
-              # Deploy as static files for now
-              sudo mkdir -p /var/www/rozitech
-              sudo cp -r templates/marketing/* /var/www/rozitech/ || true
-              sudo cp -r website_pages/* /var/www/rozitech/ || true
-              
-              # Setup basic nginx config
-              sudo tee /etc/nginx/sites-available/rozitech << 'NGINXEOF'
-            server {
-                listen 80;
-                server_name rozitech.com www.rozitech.com rozitech.co.za www.rozitech.co.za;
-                root /var/www/rozitech;
-                index index.html;
-                
-                location / {
-                    try_files $uri $uri/ =404;
-                }
-                
-                location = /get-started/ {
-                    try_files /get-started.html =404;
-                }
-                
-                location = /learn-more/ {
-                    try_files /learn-more.html =404;
-                }
-            }
-            NGINXEOF
-              
-              # Enable site
-              sudo ln -sf /etc/nginx/sites-available/rozitech /etc/nginx/sites-enabled/ || true
-              sudo nginx -t && sudo systemctl reload nginx || echo "Nginx config not applied"
+              # Fallback to website_pages
+              sudo cp website_pages/index-example.html "$WEB_ROOT/index.html" || true
+              sudo cp website_pages/get-started.html "$WEB_ROOT/" || true
+              sudo cp website_pages/learn-more.html "$WEB_ROOT/" || true
+            fi
+            
+            # Set proper permissions
+            echo "🔧 Setting file permissions..."
+            sudo chown -R www-data:www-data "$WEB_ROOT"/*.html 2>/dev/null || sudo chown -R nginx:nginx "$WEB_ROOT"/*.html 2>/dev/null || true
+            sudo chmod 644 "$WEB_ROOT"/*.html || true
+            
+            # Test web server configuration
+            echo "🧪 Testing web server..."
+            if command -v nginx >/dev/null; then
+              sudo nginx -t && echo "✅ Nginx config is valid" || echo "⚠️ Nginx config issues"
+              sudo systemctl reload nginx && echo "✅ Nginx reloaded" || echo "⚠️ Nginx reload failed"
+            elif command -v apache2ctl >/dev/null; then
+              sudo apache2ctl configtest && echo "✅ Apache config is valid" || echo "⚠️ Apache config issues"
+              sudo systemctl reload apache2 && echo "✅ Apache reloaded" || echo "⚠️ Apache reload failed"
             fi
             
             # Cleanup
-            rm -f /tmp/rozitech-website.tar.gz
+            rm -rf /tmp/rozitech-deploy /tmp/rozitech-website.tar.gz
             
-            echo "✅ Deployment completed successfully!"
-            echo "🌐 Website should be available at: https://rozitech.com"
+            echo "✅ Website deployment completed!"
+            echo "📋 Deployed files:"
+            ls -la "$WEB_ROOT"/*.html | grep -E "(index|get-started|learn-more)" || true
             
           ENDSSH
       
@@ -152,19 +131,80 @@ jobs:
         run: |
           echo "🧪 Verifying deployment..."
           
-          # Wait a moment for services to start
-          sleep 10
+          # Wait a moment for web server to reload
+          sleep 5
           
-          # Test the endpoints
+          # Test the deployment
           ssh ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
-            echo "Testing local endpoints..."
+            echo "Testing deployed website..."
             
-            # Test if we can reach the server locally
-            curl -s -o /dev/null -w "%{http_code}" http://localhost/ || echo "Local test failed"
-            curl -s -o /dev/null -w "%{http_code}" http://localhost/get-started/ || echo "Get Started test failed"
-            curl -s -o /dev/null -w "%{http_code}" http://localhost/learn-more/ || echo "Learn More test failed"
+            # Test local access to files
+            echo "📁 Checking deployed files..."
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            fi
             
-            echo "Local tests completed"
+            if [ -f "$WEB_ROOT/index.html" ]; then
+              echo "✅ index.html exists"
+            else
+              echo "❌ index.html missing"
+            fi
+            
+            if [ -f "$WEB_ROOT/get-started.html" ]; then
+              echo "✅ get-started.html exists"
+            else
+              echo "❌ get-started.html missing"
+            fi
+            
+            if [ -f "$WEB_ROOT/learn-more.html" ]; then
+              echo "✅ learn-more.html exists"
+            else
+              echo "❌ learn-more.html missing"
+            fi
+            
+            # Test content
+            echo "📄 Checking content..."
+            if grep -q "Get Started" "$WEB_ROOT/index.html" 2>/dev/null; then
+              echo "✅ Get Started button found in homepage"
+            else
+              echo "❌ Get Started button not found"
+            fi
+            
+            if grep -q "Learn More" "$WEB_ROOT/index.html" 2>/dev/null; then
+              echo "✅ Learn More button found in homepage"
+            else
+              echo "❌ Learn More button not found"
+            fi
+            
+            if grep -q "href=\"get-started.html\"" "$WEB_ROOT/index.html" 2>/dev/null; then
+              echo "✅ Get Started button properly linked"
+            else
+              echo "❌ Get Started button not properly linked"
+            fi
+            
+            if grep -q "href=\"learn-more.html\"" "$WEB_ROOT/index.html" 2>/dev/null; then
+              echo "✅ Learn More button properly linked"
+            else
+              echo "❌ Learn More button not properly linked"
+            fi
+            
+            # Test HTTP access (if possible)
+            echo "🌐 Testing HTTP access..."
+            if command -v curl >/dev/null; then
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null || echo "000")
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "✅ Website responds with HTTP 200"
+              else
+                echo "⚠️ Website HTTP status: $HTTP_CODE"
+              fi
+            fi
+            
+            echo "🎉 Verification completed!"
           ENDSSH
       
       - name: Deployment Summary
