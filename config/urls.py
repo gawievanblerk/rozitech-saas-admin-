@@ -8,6 +8,9 @@ from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
+    # Health check (must be first for monitoring)
+    path('', include('apps.health.urls')),
+    
     # Admin
     path('admin/', admin.site.urls),
     
