@@ -1,0 +1,97 @@
+name: Simple Deploy to Xneelo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Test SSH Connection
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.XNEELO_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Debug: Check if key file has content
+          echo "Key file size: $(wc -c ~/.ssh/deploy_key)"
+          echo "First line of key: $(head -n1 ~/.ssh/deploy_key)"
+          
+          # Add host to known hosts
+          ssh-keyscan -H ${{ secrets.XNEELO_SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Configure SSH to be less strict for this host
+          cat >> ~/.ssh/config << EOF
+          Host ${{ secrets.XNEELO_SERVER_HOST }}
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/config
+          
+          echo "Testing SSH connection..."
+          ssh -o ConnectTimeout=10 -i ~/.ssh/deploy_key ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} "echo 'SSH test successful' && whoami && pwd"
+      
+      - name: Setup Server
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
+            echo "Setting up Rozitech SaaS on Xneelo..."
+            
+            # Create directories
+            mkdir -p /opt/rozitech-saas/{nginx/conf.d,logs,data}
+            cd /opt/rozitech-saas
+            
+            # Create a simple test file
+            echo "Deployment test at $(date)" > deployment-test.txt
+            
+            # Check Docker
+            docker --version || echo "Docker not found"
+            docker-compose --version || echo "Docker Compose not found"
+            
+            echo "Setup complete!"
+          ENDSSH
+      
+      - name: Copy Application Files
+        run: |
+          # Create a simple docker-compose for testing
+          cat > docker-compose-simple.yml << 'EOF'
+          version: '3.8'
+          services:
+            web:
+              image: nginx:alpine
+              container_name: rozitech-test
+              ports:
+                - "8080:80"
+              volumes:
+                - ./deployment-test.txt:/usr/share/nginx/html/index.html:ro
+          EOF
+          
+          # Copy to server
+          scp -i ~/.ssh/deploy_key docker-compose-simple.yml ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }}:/opt/rozitech-saas/
+      
+      - name: Start Test Container
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.XNEELO_SERVER_USER }}@${{ secrets.XNEELO_SERVER_HOST }} << 'ENDSSH'
+            cd /opt/rozitech-saas
+            
+            # Stop any existing test container
+            docker stop rozitech-test 2>/dev/null || true
+            docker rm rozitech-test 2>/dev/null || true
+            
+            # Start test container
+            docker-compose -f docker-compose-simple.yml up -d
+            
+            # Check if it's running
+            sleep 5
+            docker ps
+            curl -f http://localhost:8080 || echo "Test container not accessible"
+          ENDSSH
+      
+      - name: Clean up
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
