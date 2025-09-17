@@ -1,4 +1,4 @@
-name: Deploy to Xneelo Server v2
+name: Deploy Xneelo RSA Test
 
 on:
   push:
