@@ -1,0 +1,89 @@
+# Prometheus configuration for Rozitech SaaS Admin Platform
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  
+  external_labels:
+    monitor: 'rozitech-monitor'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "rules/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Django application metrics
+  - job_name: 'django-app'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['app:8000']
+        labels:
+          service: 'django'
+          component: 'api'
+
+  # Celery worker metrics
+  - job_name: 'celery-workers'
+    static_configs:
+      - targets: ['celery-worker:9540']
+        labels:
+          service: 'celery'
+          component: 'worker'
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # PostgreSQL metrics
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgresql'
+          component: 'database'
+
+  # Docker container metrics
+  - job_name: 'docker-containers'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'docker'
+          component: 'containers'
+
+  # Service health checks
+  - job_name: 'service-health'
+    metrics_path: '/health/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['app:8000']
+        labels:
+          service: 'health-checks'
+          component: 'services'
+
+  # Tenant service metrics
+  - job_name: 'tenant-services'
+    metrics_path: '/api/services/metrics/prometheus'
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['app:8000']
+        labels:
+          service: 'tenant-services'
+          component: 'provisioned'

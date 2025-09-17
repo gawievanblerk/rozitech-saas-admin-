@@ -1,0 +1,139 @@
+groups:
+  - name: service_alerts
+    interval: 30s
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up{job="tenant-services"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: service
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "Service {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: HighServiceResponseTime
+        expr: http_request_duration_seconds{quantile="0.99"} > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: service
+        annotations:
+          summary: "High response time for service {{ $labels.instance }}"
+          description: "99th percentile response time is above 2 seconds for 5 minutes."
+
+      # Resource utilization alerts
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: resource
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for 5 minutes on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: error
+          component: resource
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 90% for 5 minutes on {{ $labels.instance }}."
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: resource
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 85% on {{ $labels.instance }} {{ $labels.mountpoint }}."
+
+      # Provisioning alerts
+      - alert: ProvisioningFailed
+        expr: increase(provisioning_failures_total[1h]) > 3
+        for: 1m
+        labels:
+          severity: error
+          component: provisioning
+        annotations:
+          summary: "Multiple provisioning failures"
+          description: "More than 3 provisioning failures in the last hour."
+
+      - alert: LongProvisioningTime
+        expr: histogram_quantile(0.95, rate(provisioning_duration_seconds_bucket[5m])) > 600
+        for: 5m
+        labels:
+          severity: warning
+          component: provisioning
+        annotations:
+          summary: "Provisioning taking too long"
+          description: "95th percentile provisioning time is above 10 minutes."
+
+      # Health check alerts
+      - alert: ServiceHealthCheckFailed
+        expr: service_health_status{status="unhealthy"} == 1
+        for: 3m
+        labels:
+          severity: error
+          component: health
+        annotations:
+          summary: "Health check failed for {{ $labels.service_name }}"
+          description: "Service {{ $labels.service_name }} ({{ $labels.instance_name }}) is unhealthy for 3 minutes."
+
+      # Database alerts
+      - alert: DatabaseConnectionPoolExhausted
+        expr: django_db_connections_active / django_db_connections_limit > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Database connection pool is over 90% utilized for 5 minutes."
+
+      - alert: SlowDatabaseQueries
+        expr: rate(django_db_query_duration_seconds_sum[5m]) / rate(django_db_query_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Average query time is above 1 second for 5 minutes."
+
+      # Celery alerts
+      - alert: CeleryWorkerDown
+        expr: up{job="celery-workers"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: celery
+        annotations:
+          summary: "Celery worker is down"
+          description: "Celery worker {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: HighCeleryTaskFailureRate
+        expr: rate(celery_task_failed_total[5m]) / rate(celery_task_sent_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: celery
+        annotations:
+          summary: "High Celery task failure rate"
+          description: "More than 10% of Celery tasks are failing."
+
+      - alert: CeleryQueueBacklog
+        expr: celery_queue_length{queue="provisioning"} > 50
+        for: 10m
+        labels:
+          severity: warning
+          component: celery
+        annotations:
+          summary: "Large Celery queue backlog"
+          description: "Provisioning queue has more than 50 pending tasks for 10 minutes."
