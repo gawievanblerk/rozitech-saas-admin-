@@ -1,0 +1,162 @@
+name: Deploy Website (SSH Key Fix)
+
+on:
+  workflow_dispatch:
+    inputs:
+      use_password:
+        description: 'Use password authentication instead of SSH key'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Deploy with SSH Key (Fixed)
+        if: github.event.inputs.use_password != 'true'
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.XNEELO_SERVER_HOST }}
+          username: ${{ secrets.XNEELO_SERVER_USER }}
+          key: ${{ secrets.XNEELO_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🚀 SSH Key connection successful!"
+            
+            # Test server environment
+            echo "📂 Server info:"
+            whoami
+            pwd
+            
+            # Find web root
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            else
+              echo "❌ Could not find web root directory"
+              echo "Available directories:"
+              ls -la /var/www/ 2>/dev/null || echo "No /var/www/"
+              ls -la /home/$USER/ 2>/dev/null || echo "No home directory"
+              exit 1
+            fi
+            
+            echo "📂 Using web root: $WEB_ROOT"
+            ls -la "$WEB_ROOT" || echo "Cannot list web root contents"
+            
+            echo "✅ SSH connection and environment check completed!"
+      
+      - name: Deploy with Password (Fallback)
+        if: github.event.inputs.use_password == 'true'
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.XNEELO_SERVER_HOST }}
+          username: ${{ secrets.XNEELO_SERVER_USER }}
+          password: ${{ secrets.XNEELO_SERVER_PASSWORD }}
+          port: 22
+          script: |
+            echo "🚀 Password connection successful!"
+            
+            # Same environment check as above
+            echo "📂 Server info:"
+            whoami
+            pwd
+            
+            # Find web root
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            else
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            echo "📂 Using web root: $WEB_ROOT"
+            ls -la "$WEB_ROOT" || echo "Cannot list web root contents"
+            
+            echo "✅ SSH connection and environment check completed!"
+      
+      - name: Upload Website Files (if connection successful)
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.XNEELO_SERVER_HOST }}
+          username: ${{ secrets.XNEELO_SERVER_USER }}
+          key: ${{ secrets.XNEELO_SSH_KEY }}
+          password: ${{ github.event.inputs.use_password == 'true' && secrets.XNEELO_SERVER_PASSWORD || '' }}
+          source: "quick-deploy/*"
+          target: "/tmp/rozitech-deploy/"
+          
+      - name: Deploy Files to Web Root
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.XNEELO_SERVER_HOST }}
+          username: ${{ secrets.XNEELO_SERVER_USER }}
+          key: ${{ github.event.inputs.use_password != 'true' && secrets.XNEELO_SSH_KEY || '' }}
+          password: ${{ github.event.inputs.use_password == 'true' && secrets.XNEELO_SERVER_PASSWORD || '' }}
+          port: 22
+          script: |
+            echo "🌐 Deploying website files..."
+            
+            # Find web root
+            WEB_ROOT=""
+            if [ -d "/var/www/html" ]; then
+              WEB_ROOT="/var/www/html"
+            elif [ -d "/home/$USER/public_html" ]; then
+              WEB_ROOT="/home/$USER/public_html"
+            elif [ -d "/usr/share/nginx/html" ]; then
+              WEB_ROOT="/usr/share/nginx/html"
+            fi
+            
+            if [ -z "$WEB_ROOT" ]; then
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            # Backup existing files
+            if [ -f "$WEB_ROOT/index.html" ]; then
+              echo "📦 Backing up existing website..."
+              sudo cp "$WEB_ROOT/index.html" "$WEB_ROOT/index.html.backup-$(date +%Y%m%d-%H%M%S)" || cp "$WEB_ROOT/index.html" "$WEB_ROOT/index.html.backup-$(date +%Y%m%d-%H%M%S)" || true
+            fi
+            
+            # Deploy new files
+            if [ -d "/tmp/rozitech-deploy/quick-deploy" ]; then
+              echo "📄 Deploying new website files..."
+              sudo cp /tmp/rozitech-deploy/quick-deploy/index.html "$WEB_ROOT/" || cp /tmp/rozitech-deploy/quick-deploy/index.html "$WEB_ROOT/"
+              sudo cp /tmp/rozitech-deploy/quick-deploy/get-started.html "$WEB_ROOT/" || cp /tmp/rozitech-deploy/quick-deploy/get-started.html "$WEB_ROOT/"
+              sudo cp /tmp/rozitech-deploy/quick-deploy/learn-more.html "$WEB_ROOT/" || cp /tmp/rozitech-deploy/quick-deploy/learn-more.html "$WEB_ROOT/"
+              
+              # Set permissions
+              sudo chown www-data:www-data "$WEB_ROOT"/*.html 2>/dev/null || sudo chown nginx:nginx "$WEB_ROOT"/*.html 2>/dev/null || chown $USER:$USER "$WEB_ROOT"/*.html 2>/dev/null || true
+              sudo chmod 644 "$WEB_ROOT"/*.html || chmod 644 "$WEB_ROOT"/*.html || true
+              
+              echo "✅ Files deployed successfully!"
+              
+              # Cleanup
+              rm -rf /tmp/rozitech-deploy
+              
+              # List deployed files
+              echo "📋 Deployed files:"
+              ls -la "$WEB_ROOT"/*.html | grep -E "(index|get-started|learn-more)" || true
+              
+              # Test content
+              if grep -q "href=\"get-started.html\"" "$WEB_ROOT/index.html" 2>/dev/null; then
+                echo "✅ Get Started button properly linked"
+              else
+                echo "❌ Get Started button link not found"
+              fi
+              
+            else
+              echo "❌ Upload files not found in /tmp/rozitech-deploy/"
+              ls -la /tmp/rozitech-deploy/ || true
+            fi
