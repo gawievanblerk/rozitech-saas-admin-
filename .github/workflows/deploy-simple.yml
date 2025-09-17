@@ -14,7 +14,12 @@ jobs:
       - name: Test SSH Connection
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.XNEELO_SSH_KEY }}" | base64 -d > ~/.ssh/deploy_key
+          
+          # Create the SSH key directly (more reliable than base64)
+          cat > ~/.ssh/deploy_key << 'EOFKEY'
+          ${{ secrets.XNEELO_SSH_KEY }}
+          EOFKEY
+          
           chmod 600 ~/.ssh/deploy_key
           
           # Debug: Check if key file has content
