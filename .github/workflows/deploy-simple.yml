@@ -1,4 +1,4 @@
-name: Simple Deploy to Xneelo
+name: Deploy to Xneelo Server
 
 on:
   push:
