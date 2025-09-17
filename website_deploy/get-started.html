@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Rozitech</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Segoe UI", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 30px; text-align: center; }
+        .header h1 { color: #2c3e50; font-size: 2.5rem; margin-bottom: 10px; }
+        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .plan { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; text-align: center; }
+        .plan h3 { font-size: 1.8rem; margin-bottom: 10px; }
+        .price { font-size: 3rem; color: #27ae60; font-weight: bold; margin-bottom: 20px; }
+        .features { list-style: none; margin-bottom: 30px; }
+        .features li { padding: 8px 0; }
+        .btn { background: #3498db; color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; display: inline-block; margin: 5px; }
+        .back-btn { position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 25px; text-decoration: none; color: #333; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← Back to Home</a>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Get Started with Insurr</h1>
+            <p>Choose your plan and transform your insurance operations today</p>
+        </div>
+        <div class="plans">
+            <div class="plan">
+                <h3>Starter</h3>
+                <div class="price">R299</div>
+                <p>per month</p>
+                <ul class="features">
+                    <li>✓ Up to 100 users</li>
+                    <li>✓ Basic policy management</li>
+                    <li>✓ Claims processing</li>
+                    <li>✓ Email support</li>
+                </ul>
+                <a href="mailto:hello@rozitech.com?subject=Free Trial - Starter" class="btn">Start Free Trial</a>
+            </div>
+            <div class="plan">
+                <h3>Professional</h3>
+                <div class="price">R799</div>
+                <p>per month</p>
+                <ul class="features">
+                    <li>✓ Up to 1,000 users</li>
+                    <li>✓ Advanced policy management</li>
+                    <li>✓ Automated claims processing</li>
+                    <li>✓ Priority support</li>
+                </ul>
+                <a href="mailto:hello@rozitech.com?subject=Free Trial - Professional" class="btn">Start Free Trial</a>
+            </div>
+            <div class="plan">
+                <h3>Enterprise</h3>
+                <div class="price">R1,999</div>
+                <p>per month</p>
+                <ul class="features">
+                    <li>✓ Unlimited users</li>
+                    <li>✓ White-label solutions</li>
+                    <li>✓ Dedicated support</li>
+                    <li>✓ Custom integrations</li>
+                </ul>
+                <a href="mailto:hello@rozitech.com?subject=Enterprise Inquiry" class="btn">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
