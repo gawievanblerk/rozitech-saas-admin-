@@ -120,6 +120,50 @@ jobs:
             echo "Current files in web root:"
             ls -la "$WEB_ROOT" | head -20
             
+            # Check for other potential web directories
+            echo ""
+            echo "🔍 Checking for other web directories..."
+            
+            # Check if there's a domains directory (common in cPanel/Xneelo)
+            if [ -d "$HOME/domains" ]; then
+              echo "Found domains directory:"
+              ls -la "$HOME/domains"
+              
+              # Check each domain folder
+              for domain in $HOME/domains/*/; do
+                if [ -d "$domain" ]; then
+                  echo "Domain: $domain"
+                  if [ -d "$domain/public_html" ]; then
+                    echo "  → Has public_html:"
+                    ls -la "$domain/public_html" | head -5
+                  fi
+                fi
+              done
+            fi
+            
+            # Check for www directory
+            if [ -d "$HOME/www" ] && [ "$WEB_ROOT" != "$HOME/www" ]; then
+              echo "Found www directory:"
+              ls -la "$HOME/www" | head -5
+            fi
+            
+            # Check Apache/Nginx config if accessible
+            if [ -f "/etc/apache2/sites-enabled/000-default.conf" ]; then
+              echo "Apache config DocumentRoot:"
+              grep -i documentroot /etc/apache2/sites-enabled/000-default.conf 2>/dev/null | head -2
+            fi
+            
+            # Check if there's a symbolic link
+            if [ -L "$HOME/public_html" ]; then
+              echo "⚠️ public_html is a symbolic link pointing to:"
+              readlink -f "$HOME/public_html"
+            fi
+            
+            # Find all index.html files in home directory
+            echo ""
+            echo "🔍 Finding all index.html files:"
+            find $HOME -name "index.html" -type f 2>/dev/null | head -10
+            
             # Backup existing index.html if it exists
             if [ -f "$WEB_ROOT/index.html" ]; then
               echo "📦 Backing up existing index.html"
