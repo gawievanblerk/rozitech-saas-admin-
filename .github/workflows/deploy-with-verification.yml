@@ -67,50 +67,30 @@ jobs:
             echo "Current home directory contents:"
             ls -la $HOME
             
-            # Check if public_html exists, if not create it
-            if [ -d "$HOME/public_html" ]; then
-              echo "✅ Found existing: $HOME/public_html"
-              WEB_ROOT="$HOME/public_html"
-            elif [ -d "$HOME/www" ]; then
-              echo "✅ Found existing: $HOME/www"
-              WEB_ROOT="$HOME/www"
-            elif [ -d "$HOME/htdocs" ]; then
-              echo "✅ Found existing: $HOME/htdocs"
-              WEB_ROOT="$HOME/htdocs"
-            else
-              # Create public_html directory since it doesn't exist
-              echo "📁 Web directory not found. Creating public_html..."
-              mkdir -p "$HOME/public_html"
-              if [ $? -eq 0 ]; then
-                echo "✅ Successfully created $HOME/public_html"
-                WEB_ROOT="$HOME/public_html"
-                
-                # Create a simple .htaccess file for Apache
-                echo "Creating .htaccess file..."
-                cat > "$HOME/public_html/.htaccess" << 'HTACCESS'
-            # Basic Apache configuration
-            Options -Indexes
-            DirectoryIndex index.html index.php
+            # The actual web root for Rozitech is /opt/rozitech-website
+            WEB_ROOT="/opt/rozitech-website"
             
-            # Enable compression
-            <IfModule mod_deflate.c>
-              AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
-            </IfModule>
-            HTACCESS
-                echo "✅ Created .htaccess file"
+            # Check if we can access the web root
+            if [ -d "$WEB_ROOT" ]; then
+              echo "✅ Found Rozitech website directory: $WEB_ROOT"
+              
+              # Check if it's inside a Docker container setup
+              if [ -f "/opt/rozitech-saas/locations.conf" ]; then
+                echo "✅ Detected Docker/Nginx setup with locations.conf"
+                echo "📝 Nginx is serving from: $WEB_ROOT"
+              fi
+            else
+              echo "❌ Cannot find website directory at $WEB_ROOT"
+              echo "Checking alternative locations..."
+              
+              # Fall back to public_html if /opt/rozitech-website doesn't exist
+              if [ -d "$HOME/public_html" ]; then
+                echo "⚠️ Using fallback: $HOME/public_html"
+                WEB_ROOT="$HOME/public_html"
               else
-                echo "❌ Failed to create public_html directory"
-                echo "Trying alternative location..."
-                
-                # Try creating in current directory
-                mkdir -p "./www"
-                if [ $? -eq 0 ]; then
-                  echo "✅ Created www directory in current location"
-                  WEB_ROOT="$(pwd)/www"
-                else
-                  echo "❌ Could not create web directory"
-                  exit 1
-                fi
+                echo "Creating $HOME/public_html as fallback..."
+                mkdir -p "$HOME/public_html"
+                WEB_ROOT="$HOME/public_html"
               fi
             fi
             
@@ -391,21 +371,34 @@ jobs:
             
             # Deploy files with force overwrite
             echo "Deploying files to $WEB_ROOT..."
-            if [ -w "$WEB_ROOT" ]; then
+            
+            # For /opt/rozitech-website, we need sudo
+            if [ "$WEB_ROOT" = "/opt/rozitech-website" ]; then
+              echo "📝 Deploying to production website directory (requires sudo)..."
+              
+              # Backup existing files
+              sudo cp "$WEB_ROOT/index.html" "$WEB_ROOT/index.html.backup.$(date +%s)" 2>/dev/null || true
+              
+              # Deploy new files
+              sudo cp -f *.html "$WEB_ROOT/"
+              sudo chmod 644 "$WEB_ROOT"/*.html
+              echo "✅ Files deployed to production with sudo"
+              
+              # Reload nginx to ensure changes are picked up
+              echo "🔄 Reloading nginx container..."
+              sudo docker exec rozitech-live nginx -s reload 2>/dev/null || echo "⚠️ Could not reload nginx (may not be needed)"
+            elif [ -w "$WEB_ROOT" ]; then
               # We have write permission
               cp -f *.html "$WEB_ROOT/"
               echo "✅ Files deployed (user permissions)"
-            elif sudo -n true 2>/dev/null; then
-              # We can use sudo
-              sudo cp -f *.html "$WEB_ROOT/"
-              sudo chmod 644 "$WEB_ROOT"/*.html
-              echo "✅ Files deployed (sudo permissions)"
             else
-              # Try without sudo first
-              cp -f *.html "$WEB_ROOT/" 2>/dev/null || {
+              # Try with sudo as fallback
+              sudo cp -f *.html "$WEB_ROOT/" 2>/dev/null || {
                 echo "❌ Deployment failed - no write permissions"
                 exit 1
               }
+              sudo chmod 644 "$WEB_ROOT"/*.html 2>/dev/null || true
+              echo "✅ Files deployed (sudo permissions)"
             fi
             
             # Verify deployment
