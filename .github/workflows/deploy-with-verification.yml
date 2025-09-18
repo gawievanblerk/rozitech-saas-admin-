@@ -1,0 +1,156 @@
+name: Deploy with Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'website_pages/**'
+      - '.github/workflows/deploy-with-verification.yml'
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Add known hosts if provided
+          if [ -n "${{ secrets.SSH_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          fi
+      
+      - name: Verify SSH Connection
+        run: |
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/deploy_key \
+              -p ${{ secrets.SSH_PORT || '22' }} \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=10 \
+              ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+              "echo 'SSH connection successful'"
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ SSH connection verified"
+          else
+            echo "❌ SSH connection failed"
+            exit 1
+          fi
+      
+      - name: Deploy Website Files
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          timeout: 60s
+          script: |
+            echo "🚀 Starting Website Deployment..."
+            
+            # Find web root directory
+            WEB_ROOT=""
+            for dir in "/var/www/html" "/home/$(whoami)/public_html" "/usr/share/nginx/html"; do
+              if [ -d "$dir" ] && [ -w "$dir" 2>/dev/null ]; then
+                WEB_ROOT="$dir"
+                break
+              elif [ -d "$dir" ] && sudo test -w "$dir" 2>/dev/null; then
+                WEB_ROOT="$dir"
+                break
+              fi
+            done
+            
+            if [ -z "$WEB_ROOT" ]; then
+              echo "❌ Could not find web root directory"
+              exit 1
+            fi
+            
+            echo "📂 Using web root: $WEB_ROOT"
+            
+            # Create temp directory
+            TEMP_DIR="/tmp/rozitech-deploy-$(date +%s)"
+            mkdir -p "$TEMP_DIR"
+            cd "$TEMP_DIR"
+            
+            # Create index.html
+            cat > index.html << 'EOF'
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Rozitech - Enterprise SaaS Solutions</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+                    .hero {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        min-height: 100vh;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        padding: 20px;
+                    }
+                    .hero-content { max-width: 800px; }
+                    h1 { font-size: 3.5rem; margin-bottom: 1.5rem; }
+                    p { font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.95; }
+                    .buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+                    .btn {
+                        padding: 1rem 2rem;
+                        border-radius: 50px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        transition: transform 0.2s;
+                    }
+                    .btn:hover { transform: translateY(-2px); }
+                    .btn-primary {
+                        background: white;
+                        color: #667eea;
+                    }
+                    .btn-secondary {
+                        border: 2px solid white;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="hero">
+                    <div class="hero-content">
+                        <h1>Enterprise SaaS Solutions</h1>
+                        <p>Transform your business with our comprehensive multi-tenant platform. Built for the South African market.</p>
+                        <div class="buttons">
+                            <a href="#" class="btn btn-primary">Get Started</a>
+                            <a href="#" class="btn btn-secondary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            EOF
+            
+            echo "✅ Website files created"
+            
+            # Deploy files
+            if sudo cp *.html "$WEB_ROOT/" 2>/dev/null; then
+              echo "✅ Files deployed with sudo"
+              sudo chmod 644 "$WEB_ROOT"/*.html 2>/dev/null || true
+            elif cp *.html "$WEB_ROOT/" 2>/dev/null; then
+              echo "✅ Files deployed"
+            else
+              echo "❌ Deployment failed"
+              exit 1
+            fi
+            
+            # Cleanup
+            rm -rf "$TEMP_DIR"
+            
+            echo "🎉 Deployment Complete!"

@@ -1,323 +1,240 @@
 #!/bin/bash
 
-# Rozitech SaaS Platform - GitHub Secrets Setup Script
-# This script helps you generate and configure the necessary secrets for CI/CD
+# Script to properly format and set GitHub secrets
+# Handles line ending issues and ensures proper formatting
 
-set -e
-
-echo "🔐 Setting up GitHub Secrets for Rozitech SaaS Platform"
-echo "======================================================"
+echo "GitHub Secrets Setup Script"
+echo "==========================="
+echo ""
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}✅ $1${NC}"
+# Function to clean and validate SSH key
+clean_ssh_key() {
+    local key_file=$1
+    local key_name=$2
+    
+    echo -e "${YELLOW}Processing $key_name...${NC}"
+    
+    if [ ! -f "$key_file" ]; then
+        echo -e "${RED}Error: $key_file not found${NC}"
+        return 1
+    fi
+    
+    # Create a cleaned version
+    local cleaned_file="${key_file}.cleaned"
+    
+    # Remove any carriage returns and ensure proper Unix line endings
+    tr -d '\r' < "$key_file" > "$cleaned_file"
+    
+    # Ensure the file ends with a newline
+    sed -i '' -e '$a\' "$cleaned_file" 2>/dev/null || sed -i -e '$a\' "$cleaned_file"
+    
+    # Validate SSH key format
+    if grep -q "BEGIN.*PRIVATE KEY" "$cleaned_file"; then
+        echo -e "${GREEN}✓ Valid private key format detected${NC}"
+    elif grep -q "ssh-rsa\|ssh-ed25519\|ecdsa-sha2" "$cleaned_file"; then
+        echo -e "${GREEN}✓ Valid public key format detected${NC}"
+    else
+        echo -e "${RED}Warning: Key format might be invalid${NC}"
+    fi
+    
+    # Show the first and last lines for verification (without exposing the key)
+    echo "First line: $(head -n1 "$cleaned_file" | cut -c1-30)..."
+    echo "Last line: ...$(tail -n1 "$cleaned_file" | rev | cut -c1-30 | rev)"
+    echo ""
+    
+    # Copy cleaned content to clipboard (macOS)
+    cat "$cleaned_file" | pbcopy
+    echo -e "${GREEN}✓ Cleaned $key_name copied to clipboard${NC}"
+    echo -e "${YELLOW}→ Now paste this into GitHub Secrets as $key_name${NC}"
+    echo ""
+    
+    # Store cleaned version
+    mv "$cleaned_file" "$key_file"
+    
+    return 0
 }
 
-print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+# Function to clean and validate known hosts
+clean_known_hosts() {
+    local hosts_file=$1
+    
+    echo -e "${YELLOW}Processing SSH_KNOWN_HOSTS...${NC}"
+    
+    if [ ! -f "$hosts_file" ]; then
+        echo -e "${RED}Error: $hosts_file not found${NC}"
+        return 1
+    fi
+    
+    # Create a cleaned version
+    local cleaned_file="${hosts_file}.cleaned"
+    
+    # Remove any carriage returns and ensure proper Unix line endings
+    tr -d '\r' < "$hosts_file" > "$cleaned_file"
+    
+    # Remove empty lines and comments
+    grep -v '^#' "$cleaned_file" | grep -v '^$' > "${cleaned_file}.tmp"
+    mv "${cleaned_file}.tmp" "$cleaned_file"
+    
+    # Validate format (should contain host keys)
+    if grep -q "ssh-rsa\|ssh-ed25519\|ecdsa-sha2" "$cleaned_file"; then
+        echo -e "${GREEN}✓ Valid known_hosts format detected${NC}"
+        echo "Number of host entries: $(wc -l < "$cleaned_file")"
+    else
+        echo -e "${RED}Warning: known_hosts format might be invalid${NC}"
+    fi
+    
+    # Copy cleaned content to clipboard
+    cat "$cleaned_file" | pbcopy
+    echo -e "${GREEN}✓ Cleaned known_hosts copied to clipboard${NC}"
+    echo -e "${YELLOW}→ Now paste this into GitHub Secrets as SSH_KNOWN_HOSTS${NC}"
+    echo ""
+    
+    # Store cleaned version
+    mv "$cleaned_file" "$hosts_file"
+    
+    return 0
 }
 
-print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+# Function to generate known_hosts if needed
+generate_known_hosts() {
+    local host=$1
+    local port=${2:-22}
+    local output_file="known_hosts_generated"
+    
+    echo -e "${YELLOW}Generating known_hosts for $host:$port...${NC}"
+    
+    # Remove old entry if exists
+    ssh-keygen -R "[$host]:$port" 2>/dev/null
+    
+    # Scan and add the host key
+    ssh-keyscan -p $port -H $host 2>/dev/null > "$output_file"
+    
+    if [ -s "$output_file" ]; then
+        echo -e "${GREEN}✓ Successfully generated known_hosts entry${NC}"
+        cat "$output_file" | pbcopy
+        echo -e "${GREEN}✓ Copied to clipboard${NC}"
+        echo -e "${YELLOW}→ Now paste this into GitHub Secrets as SSH_KNOWN_HOSTS${NC}"
+    else
+        echo -e "${RED}Failed to generate known_hosts entry${NC}"
+        echo "Make sure the host $host is accessible on port $port"
+    fi
 }
 
-print_error() {
-    echo -e "${RED}❌ $1${NC}"
-}
+# Main menu
+echo "What would you like to setup?"
+echo "1) Clean and setup SSH_PRIVATE_KEY"
+echo "2) Clean and setup SSH_KNOWN_HOSTS"
+echo "3) Generate new SSH_KNOWN_HOSTS from host"
+echo "4) Setup all secrets interactively"
+echo "5) Validate GitHub secret format (paste from clipboard)"
+echo ""
+read -p "Enter choice [1-5]: " choice
 
-# Create deployment directory
-mkdir -p deployment/secrets
-cd deployment
-
-print_info "Step 1: Generate SSH Key for Deployment"
-echo "========================================"
-
-# Generate SSH key if it doesn't exist
-if [ ! -f "secrets/github-deploy-key" ]; then
-    print_info "Generating new SSH key for GitHub Actions deployment..."
-    ssh-keygen -t ed25519 -f secrets/github-deploy-key -N "" -C "github-actions@rozitech.com"
-    print_status "SSH key generated: secrets/github-deploy-key"
-else
-    print_warning "SSH key already exists: secrets/github-deploy-key"
-fi
-
-print_info "Step 2: Display Public Key for Server Setup"
-echo "============================================"
+case $choice in
+    1)
+        read -p "Enter path to SSH private key file: " key_file
+        clean_ssh_key "$key_file" "SSH_PRIVATE_KEY"
+        ;;
+    2)
+        read -p "Enter path to known_hosts file: " hosts_file
+        clean_known_hosts "$hosts_file"
+        ;;
+    3)
+        read -p "Enter hostname or IP: " hostname
+        read -p "Enter SSH port (default 22): " port
+        port=${port:-22}
+        generate_known_hosts "$hostname" "$port"
+        ;;
+    4)
+        echo -e "${YELLOW}Interactive Setup Mode${NC}"
+        echo "This will help you set up all required secrets"
+        echo ""
+        
+        # SSH Private Key
+        echo "Step 1: SSH_PRIVATE_KEY"
+        read -p "Enter path to your SSH private key: " ssh_key
+        if clean_ssh_key "$ssh_key" "SSH_PRIVATE_KEY"; then
+            read -p "Press Enter after adding to GitHub Secrets..."
+        fi
+        
+        # Known Hosts
+        echo "Step 2: SSH_KNOWN_HOSTS"
+        echo "Do you have an existing known_hosts file? (y/n)"
+        read -p "> " has_known_hosts
+        
+        if [[ $has_known_hosts == "y" ]]; then
+            read -p "Enter path to known_hosts file: " hosts_file
+            if clean_known_hosts "$hosts_file"; then
+                read -p "Press Enter after adding to GitHub Secrets..."
+            fi
+        else
+            read -p "Enter your server hostname or IP: " hostname
+            read -p "Enter SSH port (default 22): " port
+            port=${port:-22}
+            generate_known_hosts "$hostname" "$port"
+            read -p "Press Enter after adding to GitHub Secrets..."
+        fi
+        
+        # Other secrets
+        echo "Step 3: Other Required Secrets"
+        echo -e "${YELLOW}Add these secrets manually in GitHub:${NC}"
+        echo "  - SSH_HOST: Your server hostname or IP"
+        echo "  - SSH_USERNAME: Your SSH username"
+        echo "  - SSH_PORT: Your SSH port (usually 22)"
+        echo ""
+        echo -e "${GREEN}Setup complete!${NC}"
+        ;;
+    5)
+        echo -e "${YELLOW}Paste the content from clipboard (Ctrl+D when done):${NC}"
+        content=$(pbpaste)
+        
+        # Check for common issues
+        if echo "$content" | grep -q $'\r'; then
+            echo -e "${RED}✗ Carriage returns detected (Windows line endings)${NC}"
+        else
+            echo -e "${GREEN}✓ No carriage returns found${NC}"
+        fi
+        
+        if echo "$content" | grep -q "BEGIN.*PRIVATE KEY"; then
+            echo -e "${GREEN}✓ Valid private key header found${NC}"
+            if echo "$content" | grep -q "END.*PRIVATE KEY"; then
+                echo -e "${GREEN}✓ Valid private key footer found${NC}"
+            else
+                echo -e "${RED}✗ Missing private key footer${NC}"
+            fi
+        elif echo "$content" | grep -q "ssh-rsa\|ssh-ed25519\|ecdsa-sha2"; then
+            echo -e "${GREEN}✓ Valid SSH public key or known_hosts format${NC}"
+        else
+            echo -e "${YELLOW}⚠ Could not determine key format${NC}"
+        fi
+        
+        # Check for trailing spaces
+        if echo "$content" | grep -q ' $'; then
+            echo -e "${YELLOW}⚠ Trailing spaces detected${NC}"
+        fi
+        
+        # Clean and copy back
+        echo "$content" | tr -d '\r' | sed 's/[[:space:]]*$//' | pbcopy
+        echo -e "${GREEN}✓ Cleaned version copied back to clipboard${NC}"
+        ;;
+    *)
+        echo -e "${RED}Invalid choice${NC}"
+        exit 1
+        ;;
+esac
 
 echo ""
-echo "📋 Copy this PUBLIC KEY and add it to your Hetzner server:"
-echo "-----------------------------------------------------------"
-cat secrets/github-deploy-key.pub
+echo -e "${YELLOW}Important GitHub Secrets Setup Tips:${NC}"
+echo "1. Go to: Settings → Secrets and variables → Actions"
+echo "2. Click 'New repository secret'"
+echo "3. Use EXACT secret names: SSH_PRIVATE_KEY, SSH_KNOWN_HOSTS, SSH_HOST, SSH_USERNAME, SSH_PORT"
+echo "4. Paste the clipboard content directly (no quotes or modifications)"
+echo "5. Make sure there are no extra spaces or lines"
 echo ""
-echo "Run this command on your Hetzner server:"
-echo "echo '$(cat secrets/github-deploy-key.pub)' >> ~/.ssh/authorized_keys"
-echo ""
-
-print_info "Step 3: Generate Environment Files"
-echo "==================================="
-
-# Create production environment template
-cat > secrets/.env.production.template << 'EOF'
-# Rozitech SaaS Platform - Production Environment
-# Copy this to .env.production and fill in your actual values
-
-# Domain Configuration
-PRIMARY_DOMAIN=rozitech.com
-SECONDARY_DOMAIN=rozitech.co.za
-APP_DOMAIN=app.rozitech.com
-
-# Database (generate strong passwords)
-DB_NAME=rozitech_saas
-DB_USER=rozitech
-DB_PASSWORD=REPLACE_WITH_STRONG_PASSWORD
-
-# Django (generate strong secret key)
-SECRET_KEY=REPLACE_WITH_DJANGO_SECRET_KEY
-DJANGO_SETTINGS_MODULE=config.settings.rozitech
-DEBUG=False
-ALLOWED_HOSTS=rozitech.com,www.rozitech.com,rozitech.co.za,www.rozitech.co.za,app.rozitech.com,*.rozitech.com,*.rozitech.co.za
-
-# Email Configuration
-EMAIL_HOST=mail.rozitech.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=noreply@rozitech.com
-EMAIL_HOST_PASSWORD=REPLACE_WITH_EMAIL_PASSWORD
-DEFAULT_FROM_EMAIL=Rozitech SaaS <noreply@rozitech.com>
-
-# Business Emails
-CONTACT_EMAIL=contact@rozitech.com
-SALES_EMAIL=sales@rozitech.com
-SUPPORT_EMAIL=support@rozitech.com
-MARKETING_EMAIL=marketing@rozitech.com
-CONTACT_ZA_EMAIL=contact@rozitech.co.za
-SALES_ZA_EMAIL=sales@rozitech.co.za
-
-# Storage (Hetzner Object Storage)
-STORAGE_BACKEND=hetzner
-HETZNER_STORAGE_ENDPOINT=fsn1.rozitech.storage.hetzner.cloud
-HETZNER_STORAGE_ACCESS_KEY=REPLACE_WITH_HETZNER_ACCESS_KEY
-HETZNER_STORAGE_SECRET_KEY=REPLACE_WITH_HETZNER_SECRET_KEY
-HETZNER_STORAGE_BUCKET=rozitech-saas-media
-
-# CDN
-USE_CDN=True
-CDN_DOMAIN=cdn.rozitech.com
-
-# Payment Gateways
-STRIPE_PUBLISHABLE_KEY=pk_live_REPLACE_WITH_STRIPE_PUBLIC_KEY
-STRIPE_SECRET_KEY=sk_live_REPLACE_WITH_STRIPE_SECRET_KEY
-PAYFAST_MERCHANT_ID=REPLACE_WITH_PAYFAST_MERCHANT_ID
-PAYFAST_MERCHANT_KEY=REPLACE_WITH_PAYFAST_MERCHANT_KEY
-PAYFAST_PASSPHRASE=REPLACE_WITH_PAYFAST_PASSPHRASE
-YOCO_SECRET_KEY=sk_live_REPLACE_WITH_YOCO_SECRET_KEY
-
-# Webhooks
-WEBHOOK_URL=https://rozitech.com/webhooks/provisioning/
-WEBHOOK_SECRET=REPLACE_WITH_WEBHOOK_SECRET
-
-# Monitoring
-SENTRY_DSN=REPLACE_WITH_SENTRY_DSN
-GOOGLE_ANALYTICS_ID=G-REPLACE_WITH_GA_ID
-
-# Regional Settings
-DEFAULT_TIMEZONE=Africa/Johannesburg
-DEFAULT_CURRENCY=ZAR
-VAT_RATE=0.15
-
-# Redis
-REDIS_URL=redis://redis:6379/0
-
-# Celery
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
-EOF
-
-# Create staging environment template
-cat > secrets/.env.staging.template << 'EOF'
-# Rozitech SaaS Platform - Staging Environment
-
-# Domain Configuration
-PRIMARY_DOMAIN=staging.rozitech.com
-SECONDARY_DOMAIN=staging.rozitech.co.za
-APP_DOMAIN=app.staging.rozitech.com
-
-# Database
-DB_NAME=rozitech_saas_staging
-DB_USER=rozitech_staging
-DB_PASSWORD=REPLACE_WITH_STAGING_DB_PASSWORD
-
-# Django
-SECRET_KEY=REPLACE_WITH_STAGING_SECRET_KEY
-DJANGO_SETTINGS_MODULE=config.settings.rozitech
-DEBUG=True
-ALLOWED_HOSTS=staging.rozitech.com,*.staging.rozitech.com,*.staging.rozitech.co.za
-
-# Email (use test configuration)
-EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-EMAIL_HOST=
-EMAIL_PORT=
-EMAIL_USE_TLS=False
-EMAIL_HOST_USER=
-EMAIL_HOST_PASSWORD=
-
-# Payment Gateways (use sandbox/test keys)
-STRIPE_PUBLISHABLE_KEY=pk_test_REPLACE_WITH_STRIPE_TEST_KEY
-STRIPE_SECRET_KEY=sk_test_REPLACE_WITH_STRIPE_TEST_KEY
-PAYFAST_MERCHANT_ID=10000100
-PAYFAST_MERCHANT_KEY=46f0cd694581a
-PAYFAST_PASSPHRASE=
-PAYFAST_SANDBOX=True
-
-# Storage (use local storage for staging)
-STORAGE_BACKEND=local
-USE_CDN=False
-
-# Monitoring (optional for staging)
-SENTRY_DSN=
-GOOGLE_ANALYTICS_ID=
-
-# Redis
-REDIS_URL=redis://redis:6379/1
-CELERY_BROKER_URL=redis://redis:6379/1
-CELERY_RESULT_BACKEND=redis://redis:6379/1
-EOF
-
-print_status "Environment templates created:"
-print_info "  - secrets/.env.production.template"
-print_info "  - secrets/.env.staging.template"
-
-print_info "Step 4: Generate Secure Passwords and Keys"
-echo "=========================================="
-
-# Generate secure passwords
-DB_PASSWORD=$(openssl rand -base64 32)
-SECRET_KEY=$(python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())" 2>/dev/null || openssl rand -base64 64)
-WEBHOOK_SECRET=$(openssl rand -base64 32)
-STAGING_DB_PASSWORD=$(openssl rand -base64 32)
-STAGING_SECRET_KEY=$(python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())" 2>/dev/null || openssl rand -base64 64)
-
-echo "Generated secure credentials:"
-echo "=========================="
-echo "Production DB Password: $DB_PASSWORD"
-echo "Production Secret Key: $SECRET_KEY"
-echo "Webhook Secret: $WEBHOOK_SECRET"
-echo "Staging DB Password: $STAGING_DB_PASSWORD"
-echo "Staging Secret Key: $STAGING_SECRET_KEY"
-echo ""
-
-print_info "Step 5: Create GitHub Secrets Configuration"
-echo "============================================"
-
-# Get server IP
-print_info "What is your Hetzner server IP address?"
-read -p "Server IP: " SERVER_IP
-
-# Create secrets summary
-cat > secrets/github-secrets.txt << EOF
-GitHub Repository Secrets Configuration
-=======================================
-
-Go to your GitHub repository → Settings → Secrets and variables → Actions
-
-Add these Repository Secrets:
-
-## Server Access
-HETZNER_SERVER_HOST = $SERVER_IP
-HETZNER_SERVER_USER = root
-HETZNER_SSH_KEY = (paste the PRIVATE key content from secrets/github-deploy-key)
-
-## Environment Files (Base64 encoded)
-PRODUCTION_ENV = (base64 encoded content of your .env.production file)
-STAGING_ENV = (base64 encoded content of your .env.staging file)
-
-## Docker Registry (if using private registry)
-DOCKER_REGISTRY_URL = registry.rozitech.com
-DOCKER_REGISTRY_USERNAME = your-registry-username
-DOCKER_REGISTRY_PASSWORD = your-registry-password
-
-## Notifications (optional)
-SLACK_WEBHOOK_URL = your-slack-webhook-url
-DISCORD_WEBHOOK_URL = your-discord-webhook-url
-
-## Generated Credentials
-DB_PASSWORD = $DB_PASSWORD
-SECRET_KEY = $SECRET_KEY
-WEBHOOK_SECRET = $WEBHOOK_SECRET
-STAGING_DB_PASSWORD = $STAGING_DB_PASSWORD
-STAGING_SECRET_KEY = $STAGING_SECRET_KEY
-EOF
-
-print_status "GitHub secrets configuration saved to: secrets/github-secrets.txt"
-
-print_info "Step 6: Create Environment Files Helper Script"
-echo "=============================================="
-
-cat > create-env-files.sh << 'EOF'
-#!/bin/bash
-
-# Helper script to create environment files from templates
-
-echo "Creating production environment file..."
-cp secrets/.env.production.template secrets/.env.production
-
-echo "Creating staging environment file..."
-cp secrets/.env.staging.template secrets/.env.staging
-
-echo ""
-echo "📝 Next steps:"
-echo "1. Edit secrets/.env.production with your actual production values"
-echo "2. Edit secrets/.env.staging with your actual staging values"
-echo "3. Encode the files for GitHub secrets:"
-echo ""
-echo "   # Production environment (base64)"
-echo "   base64 -i secrets/.env.production"
-echo ""
-echo "   # Staging environment (base64)"
-echo "   base64 -i secrets/.env.staging"
-echo ""
-echo "4. Add the base64 output to GitHub secrets as:"
-echo "   - PRODUCTION_ENV"
-echo "   - STAGING_ENV"
-EOF
-
-chmod +x create-env-files.sh
-
-print_status "Environment helper script created: create-env-files.sh"
-
-print_info "Step 7: Display Summary"
-echo "======================"
-
-echo ""
-print_status "🎉 GitHub Secrets Setup Complete!"
-echo ""
-echo "📋 Next Steps:"
-echo "1. Add the public key to your Hetzner server authorized_keys"
-echo "2. Run './create-env-files.sh' to create environment files"
-echo "3. Edit the environment files with your actual values"
-echo "4. Follow the instructions in 'secrets/github-secrets.txt'"
-echo "5. Configure the GitHub secrets in your repository"
-echo ""
-echo "📁 Files created:"
-echo "  - secrets/github-deploy-key (private key)"
-echo "  - secrets/github-deploy-key.pub (public key)"
-echo "  - secrets/.env.production.template"
-echo "  - secrets/.env.staging.template"
-echo "  - secrets/github-secrets.txt"
-echo "  - create-env-files.sh"
-echo ""
-echo "🔐 Important Security Notes:"
-echo "  - Never commit the secrets/ directory to git"
-echo "  - Keep your private key secure"
-echo "  - Use strong passwords for production"
-echo "  - Rotate secrets regularly"
-echo ""
-
-print_warning "Remember to add the public key to your server before testing deployment!"
+echo -e "${GREEN}After setting up secrets, trigger the deployment workflow to test.${NC}"
