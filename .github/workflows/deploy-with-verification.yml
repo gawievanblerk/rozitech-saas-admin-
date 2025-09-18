@@ -63,35 +63,55 @@ jobs:
             # Check common Xneelo/cPanel paths
             echo "Checking for web directories..."
             
-            # List directories in home to find the right path
+            # List current home directory contents
+            echo "Current home directory contents:"
+            ls -la $HOME
+            
+            # Check if public_html exists, if not create it
             if [ -d "$HOME/public_html" ]; then
-              echo "Found: $HOME/public_html"
+              echo "✅ Found existing: $HOME/public_html"
               WEB_ROOT="$HOME/public_html"
             elif [ -d "$HOME/www" ]; then
-              echo "Found: $HOME/www"
+              echo "✅ Found existing: $HOME/www"
               WEB_ROOT="$HOME/www"
             elif [ -d "$HOME/htdocs" ]; then
-              echo "Found: $HOME/htdocs"
+              echo "✅ Found existing: $HOME/htdocs"
               WEB_ROOT="$HOME/htdocs"
-            elif [ -d "$HOME/public_www" ]; then
-              echo "Found: $HOME/public_www"
-              WEB_ROOT="$HOME/public_www"
-            elif [ -d "/var/www/html" ]; then
-              echo "Found: /var/www/html"
-              WEB_ROOT="/var/www/html"
             else
-              # If not found, list what directories exist
-              echo "Available directories in home:"
-              ls -la $HOME | grep ^d | head -10
-              
-              # Try to find any directory that might be web-related
-              for dir in $(find $HOME -maxdepth 2 -type d -name "*public*" -o -name "*www*" -o -name "*html*" -o -name "*htdocs*" 2>/dev/null | head -5); do
-                echo "Potential web directory: $dir"
-              done
-              
-              echo "❌ Could not determine web root directory"
-              echo "Please check with your hosting provider for the correct web root path"
-              exit 1
+              # Create public_html directory since it doesn't exist
+              echo "📁 Web directory not found. Creating public_html..."
+              mkdir -p "$HOME/public_html"
+              if [ $? -eq 0 ]; then
+                echo "✅ Successfully created $HOME/public_html"
+                WEB_ROOT="$HOME/public_html"
+                
+                # Create a simple .htaccess file for Apache
+                echo "Creating .htaccess file..."
+                cat > "$HOME/public_html/.htaccess" << 'HTACCESS'
+            # Basic Apache configuration
+            Options -Indexes
+            DirectoryIndex index.html index.php
+            
+            # Enable compression
+            <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+            </IfModule>
+            HTACCESS
+                echo "✅ Created .htaccess file"
+              else
+                echo "❌ Failed to create public_html directory"
+                echo "Trying alternative location..."
+                
+                # Try creating in current directory
+                mkdir -p "./www"
+                if [ $? -eq 0 ]; then
+                  echo "✅ Created www directory in current location"
+                  WEB_ROOT="$(pwd)/www"
+                else
+                  echo "❌ Could not create web directory"
+                  exit 1
+                fi
+              fi
             fi
             
             echo "📂 Using web root: $WEB_ROOT"
