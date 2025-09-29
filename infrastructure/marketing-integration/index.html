@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Rozitech - South Africa's Leading Multi-Tenant Insurance Platform</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rozitech">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://www.google-analytics.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//www.google.com">
+    <meta name="description" content="Transform your insurance operations with Rozitech's comprehensive multi-tenant SaaS platform. Built for South African insurance companies. Start your free trial today.">
+    <meta name="keywords" content="insurance management software, multi-tenant insurance platform, South Africa insurance software, claims automation, POPIA compliant">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Rozitech - South Africa's Leading Multi-Tenant Insurance Platform">
+    <meta property="og:description" content="Transform your insurance operations with our comprehensive multi-tenant platform. Built for South African insurance companies.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://rozitech.com">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPGPK0G28Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RPGPK0G28Z', {
+            'custom_map': {'custom_parameter_1': 'user_type'}
+        });
+    </script>
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+    
+    <!-- Google Optimize -->
+    <script src="https://www.googleoptimize.com/optimize.js?id=OPT-XXXXXXX"></script>
+    <style>.async-hide { opacity: 0 !important} </style>
+    <script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+    h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+    (a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+    })(window,document.documentElement,'async-hide','dataLayer',4000,
+    {'OPT-XXXXXXX':true});</script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Rozitech",
+      "url": "https://rozitech.com",
+      "logo": "https://rozitech.com/logo.png",
+      "description": "South Africa's leading multi-tenant insurance platform providing comprehensive SaaS solutions for insurance companies.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Johannesburg",
+        "addressCountry": "South Africa"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+27-11-123-4567",
+        "contactType": "customer service",
+        "email": "hello@rozitech.com",
+        "availableLanguage": ["English", "Afrikaans"]
+      },
+      "sameAs": [
+        "https://linkedin.com/company/rozitech",
+        "https://twitter.com/rozitech"
+      ],
+      "founder": {
+        "@type": "Person",
+        "name": "Rozitech Founders"
+      },
+      "foundingDate": "2020",
+      "numberOfEmployees": "10-50",
+      "industry": "Insurance Technology",
+      "areaServed": {
+        "@type": "Country",
+        "name": "South Africa"
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Rozitech Insurance Platform",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser",
+      "description": "Multi-tenant insurance management platform for South African insurance companies. Features include policy management, claims automation, and compliance tools.",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Small Business Plan",
+          "price": "2.50",
+          "priceCurrency": "ZAR",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "2.50",
+            "priceCurrency": "ZAR",
+            "unitText": "per active policy per month"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Growth Plan",
+          "price": "2.00",
+          "priceCurrency": "ZAR",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "2.00",
+            "priceCurrency": "ZAR",
+            "unitText": "per active policy per month"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Enterprise Plan",
+          "price": "1.50",
+          "priceCurrency": "ZAR",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "1.50",
+            "priceCurrency": "ZAR",
+            "unitText": "per active policy per month"
+          }
+        }
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "Rozitech"
+      }
+    }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-content { max-width: 800px; }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-primary:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Cookie Consent Banner Styles */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(44, 62, 80, 0.98);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px;
+            z-index: 10000;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            border-top: 3px solid #667eea;
+        }
+        
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .cookie-content p {
+            margin: 0;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .cookie-content a {
+            color: #74b9ff;
+            text-decoration: underline;
+        }
+        
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        
+        .cookie-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cookie-btn.accept {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .cookie-btn.accept:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+        
+        .cookie-btn.essential {
+            background: transparent;
+            color: #bdc3c7;
+            border: 2px solid #7f8c8d;
+        }
+        
+        .cookie-btn.essential:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #bdc3c7;
+        }
+
+        /* Enhanced Mobile Optimization */
+        @media (max-width: 480px) {
+            .hero {
+                padding: 60px 15px;
+                min-height: 100vh;
+            }
+            
+            .hero h1 { 
+                font-size: 2rem; 
+                line-height: 1.2;
+                margin-bottom: 15px;
+            }
+            
+            .hero p { 
+                font-size: 1rem; 
+                margin-bottom: 30px;
+            }
+            
+            .hero-buttons { 
+                flex-direction: column; 
+                gap: 15px;
+                width: 100%;
+            }
+            
+            .btn-primary, .btn-secondary { 
+                width: 100%; 
+                max-width: none;
+                padding: 18px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .cookie-content p {
+                min-width: auto;
+                font-size: 0.9rem;
+            }
+            
+            .cookie-buttons {
+                justify-content: center;
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .cookie-btn {
+                flex: 1;
+                max-width: 140px;
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) and (min-width: 481px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .hero-buttons { flex-direction: column; align-items: center; gap: 15px; }
+            .btn-primary, .btn-secondary { width: 100%; max-width: 300px; }
+            
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .cookie-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .cookie-btn {
+                flex: 1;
+                max-width: 150px;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-primary, .btn-secondary {
+                padding: 18px 40px;
+                font-size: 1.1rem;
+                min-height: 44px;
+            }
+            
+            .cookie-btn {
+                min-height: 44px;
+                padding: 12px 20px;
+            }
+        }
+        
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .hero {
+                background-attachment: scroll; /* Prevent fixed background issues on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
+    <!-- POPIA Cookie Consent Banner -->
+    <div id="cookie-consent" class="cookie-banner" style="display: none;">
+        <div class="cookie-content">
+            <p><strong>🍪 We use cookies to enhance your experience</strong></p>
+            <p>By continuing to use this website, you consent to our use of cookies for analytics and personalization in accordance with our <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>.</p>
+            <div class="cookie-buttons">
+                <button onclick="acceptAllCookies()" class="cookie-btn accept">Accept All</button>
+                <button onclick="acceptEssentialOnly()" class="cookie-btn essential">Essential Only</button>
+            </div>
+        </div>
+    </div>
+    <section class="hero" data-optimize-element="hero-section">
+        <div class="hero-content">
+            <h1 data-optimize-element="hero-headline">South Africa's Leading Multi-Tenant Insurance Platform</h1>
+            <p data-optimize-element="hero-subheadline">Transform your insurance operations with our comprehensive SaaS platform. From policy management to claims automation - built specifically for South African insurance companies.</p>
+            <div class="hero-buttons" data-optimize-element="hero-ctas">
+                <a href="get-started.html" class="btn-primary" data-optimize-element="primary-cta">Get Started</a>
+                <a href="learn-more.html" class="btn-secondary" data-optimize-element="secondary-cta">Learn More</a>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Cookie Consent Management
+        function checkCookieConsent() {
+            const consent = localStorage.getItem('cookieConsent');
+            if (!consent) {
+                document.getElementById('cookie-consent').style.display = 'block';
+            } else if (consent === 'all') {
+                enableAllAnalytics();
+            }
+        }
+        
+        function acceptAllCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            document.getElementById('cookie-consent').style.display = 'none';
+            enableAllAnalytics();
+            
+            // Track consent acceptance
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'cookie_consent', {
+                    'event_category': 'privacy',
+                    'event_label': 'accept_all'
+                });
+            }
+        }
+        
+        function acceptEssentialOnly() {
+            localStorage.setItem('cookieConsent', 'essential');
+            document.getElementById('cookie-consent').style.display = 'none';
+            
+            // Track essential-only consent
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'cookie_consent', {
+                    'event_category': 'privacy',
+                    'event_label': 'essential_only'
+                });
+            }
+        }
+        
+        function enableAllAnalytics() {
+            // Enable Google Analytics with full consent
+            if (typeof gtag !== 'undefined') {
+                gtag('consent', 'update', {
+                    'analytics_storage': 'granted',
+                    'ad_storage': 'granted'
+                });
+            }
+        }
+        
+        // Enhanced Click Tracking for Conversion Optimization
+        function trackButtonClick(buttonType, location) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'cta_click', {
+                    'event_category': 'conversion',
+                    'event_label': buttonType,
+                    'custom_parameter_1': location,
+                    'value': buttonType === 'get_started' ? 1 : 0.5
+                });
+            }
+        }
+        
+        // A/B Testing Framework
+        function initializeABTesting() {
+            // Sample A/B test configurations (for manual testing until Google Optimize is set up)
+            const tests = {
+                'hero_headline': {
+                    variants: [
+                        'South Africa\'s Leading Multi-Tenant Insurance Platform',
+                        'Transform Your Insurance Business Today',
+                        'The Future of Insurance Management is Here'
+                    ]
+                },
+                'primary_cta': {
+                    variants: [
+                        'Get Started',
+                        'Start Free Trial',
+                        'Try It Free'
+                    ]
+                }
+            };
+            
+            // Simple client-side A/B testing (will be replaced by Google Optimize)
+            Object.keys(tests).forEach(testName => {
+                const element = document.querySelector(`[data-optimize-element="${testName.replace('_', '-')}"]`);
+                if (element) {
+                    const variants = tests[testName].variants;
+                    const variantIndex = Math.floor(Math.random() * variants.length);
+                    const selectedVariant = variants[variantIndex];
+                    
+                    // Apply variant
+                    element.textContent = selectedVariant;
+                    
+                    // Track variant assignment
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'ab_test_variant', {
+                            'event_category': 'experimentation',
+                            'event_label': `${testName}_variant_${variantIndex}`,
+                            'custom_parameter_1': 'homepage'
+                        });
+                    }
+                    
+                    // Store variant for later tracking
+                    sessionStorage.setItem(`ab_test_${testName}`, variantIndex);
+                }
+            });
+        }
+        
+        // Enhanced conversion tracking with A/B test context
+        function trackConversionWithVariant(action, value) {
+            // Get current A/B test variants
+            const variants = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                if (key.startsWith('ab_test_')) {
+                    const testName = key.replace('ab_test_', '');
+                    variants[testName] = sessionStorage.getItem(key);
+                }
+            }
+            
+            // Track conversion with variant context
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion_with_variant', {
+                    'event_category': 'conversion',
+                    'event_label': action,
+                    'custom_parameter_1': JSON.stringify(variants),
+                    'value': value
+                });
+            }
+        }
+
+        // Add click tracking to CTA buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize A/B testing
+            initializeABTesting();
+            
+            // Track Get Started button clicks
+            const getStartedBtns = document.querySelectorAll('a[href="get-started.html"]');
+            getStartedBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    trackButtonClick('get_started', 'homepage_hero');
+                    trackConversionWithVariant('get_started_click', 1);
+                });
+            });
+            
+            // Track Learn More button clicks
+            const learnMoreBtns = document.querySelectorAll('a[href="learn-more.html"]');
+            learnMoreBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    trackButtonClick('learn_more', 'homepage_hero');
+                });
+            });
+            
+            // Page load tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'page_title': 'Homepage',
+                    'page_location': window.location.href,
+                    'custom_parameter_1': 'visitor'
+                });
+            }
+            
+            // Check cookie consent on page load
+            checkCookieConsent();
+        });
+        
+        // Track scroll depth for engagement measurement
+        let maxScroll = 0;
+        function trackScrollDepth() {
+            const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+            
+            if (scrollPercent > maxScroll) {
+                maxScroll = scrollPercent;
+                
+                // Track milestone scroll depths
+                if (scrollPercent >= 25 && maxScroll < 25) {
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': '25_percent'
+                    });
+                } else if (scrollPercent >= 50 && maxScroll < 50) {
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': '50_percent'
+                    });
+                } else if (scrollPercent >= 75 && maxScroll < 75) {
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': '75_percent'
+                    });
+                } else if (scrollPercent >= 90 && maxScroll < 90) {
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': '90_percent'
+                    });
+                }
+            }
+        }
+        
+        // Throttled scroll tracking
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(trackScrollDepth, 100);
+        });
+    </script>
+</body>
+</html>

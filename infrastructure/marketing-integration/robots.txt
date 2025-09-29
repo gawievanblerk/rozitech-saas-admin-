@@ -1,0 +1,34 @@
+User-agent: *
+Allow: /
+
+# Important pages for crawling
+Allow: /index.html
+Allow: /get-started.html
+Allow: /learn-more.html
+Allow: /contact.html
+Allow: /privacy-policy.html
+
+# Sitemap location
+Sitemap: https://rozitech.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Block any temporary or development files
+Disallow: /temp/
+Disallow: /*.tmp
+Disallow: /dev/
+Disallow: /.git/
+
+# Allow important file types
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.webp
+
+# Additional directives
+Host: https://rozitech.com

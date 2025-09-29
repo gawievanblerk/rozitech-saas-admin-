@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Start Your Free Trial | Rozitech Insurance Platform</title>
+    <meta name="description" content="Start your free trial of Rozitech's insurance management platform. Choose from Starter (R299), Professional (R799), or Enterprise (R1,999) plans. No setup fees.">
+    <meta name="keywords" content="insurance software trial, free insurance platform, South Africa insurance software, multi-tenant insurance, claims automation">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Start Your Free Trial - Rozitech Insurance Platform">
+    <meta property="og:description" content="Transform your insurance operations with our 30-day free trial. No setup fees, full features included.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://rozitech.com/get-started.html">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPGPK0G28Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RPGPK0G28Z');
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .breadcrumb {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        @media (min-width: 1400px) {
+            .plans-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .plan-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        .plan-card.featured {
+            border: 3px solid #f39c12;
+            transform: scale(1.05);
+        }
+        
+        .plan-card.featured::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: #f39c12;
+            color: white;
+            padding: 5px 40px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+        }
+        
+        .plan-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+        
+        .plan-period {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .plan-details {
+            color: #2c3e50;
+            font-weight: bold;
+            background: #ecf0f1;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .pricing-example {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .plan-card.custom-plan {
+            border: 3px solid #9b59b6;
+            position: relative;
+        }
+        
+        .plan-card.custom-plan::before {
+            content: "ENTERPRISE";
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: #9b59b6;
+            color: white;
+            padding: 5px 40px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52,152,219,0.3);
+        }
+        
+        .cta-button.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+        
+        .contact-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()">← Back to Home</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Get Started with Insurr</h1>
+            <p class="subtitle">Choose your plan and transform your insurance operations today</p>
+        </div>
+        
+        <div class="breadcrumb">
+            <a href="/">Home</a> → <strong>Get Started</strong>
+        </div>
+        
+        <div class="plans-container">
+            <!-- Small Business Plan -->
+            <div class="plan-card">
+                <div class="plan-name">Small Business</div>
+                <div class="plan-price">R2.50</div>
+                <div class="plan-period">per active policy/month</div>
+                <div class="plan-details">Up to 100 active policies</div>
+                <ul class="plan-features">
+                    <li>Multi-tenant architecture</li>
+                    <li>Policy lifecycle management</li>
+                    <li>Basic claims processing</li>
+                    <li>Customer portal access</li>
+                    <li>Email support</li>
+                    <li>Standard reporting</li>
+                    <li>Mobile app access</li>
+                    <li>POPIA compliant</li>
+                </ul>
+                <div class="pricing-example">Example: 50 policies = R125/month</div>
+                <a href="#signup-small" class="cta-button" onclick="startSignup('small')">Start Free Trial</a>
+                <a href="#demo" class="cta-button secondary" onclick="requestDemo('small')">View Demo</a>
+            </div>
+            
+            <!-- Growth Plan -->
+            <div class="plan-card featured">
+                <div class="plan-name">Growth</div>
+                <div class="plan-price">R2.00</div>
+                <div class="plan-period">per active policy/month</div>
+                <div class="plan-details">101 - 1,000 active policies</div>
+                <ul class="plan-features">
+                    <li>Everything in Small Business</li>
+                    <li>Advanced claims automation</li>
+                    <li>Workflow customization</li>
+                    <li>Priority support</li>
+                    <li>Advanced analytics & reporting</li>
+                    <li>API integrations</li>
+                    <li>Bulk policy operations</li>
+                    <li>Commission management</li>
+                </ul>
+                <div class="pricing-example">Example: 500 policies = R1,000/month</div>
+                <a href="#signup-growth" class="cta-button" onclick="startSignup('growth')">Start Free Trial</a>
+                <a href="#demo" class="cta-button secondary" onclick="requestDemo('growth')">View Demo</a>
+            </div>
+            
+            <!-- Enterprise Plan -->
+            <div class="plan-card">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price">R1.50</div>
+                <div class="plan-period">per active policy/month</div>
+                <div class="plan-details">1,001 - 10,000 active policies</div>
+                <ul class="plan-features">
+                    <li>Everything in Growth</li>
+                    <li>White-label solutions</li>
+                    <li>Dedicated support team</li>
+                    <li>Custom integrations</li>
+                    <li>Advanced security & compliance</li>
+                    <li>SLA guarantees (99.9% uptime)</li>
+                    <li>Custom training program</li>
+                    <li>Regulatory reporting automation</li>
+                </ul>
+                <div class="pricing-example">Example: 5,000 policies = R7,500/month</div>
+                <a href="#contact-sales" class="cta-button" onclick="contactSales()">Contact Sales</a>
+                <a href="#demo" class="cta-button secondary" onclick="requestDemo('enterprise')">Schedule Demo</a>
+            </div>
+            
+            <!-- Custom Enterprise Plan -->
+            <div class="plan-card custom-plan">
+                <div class="plan-name">Custom Enterprise</div>
+                <div class="plan-price">POA</div>
+                <div class="plan-period">Price on Application</div>
+                <div class="plan-details">10,000+ active policies</div>
+                <ul class="plan-features">
+                    <li>Everything in Enterprise</li>
+                    <li>Volume discount pricing</li>
+                    <li>On-premise deployment options</li>
+                    <li>Custom feature development</li>
+                    <li>Dedicated infrastructure</li>
+                    <li>24/7 premium support</li>
+                    <li>Custom SLA agreements</li>
+                    <li>Implementation consultancy</li>
+                </ul>
+                <div class="pricing-example">Tailored pricing for large insurers</div>
+                <a href="#contact-sales" class="cta-button" onclick="contactSales()">Get Custom Quote</a>
+                <a href="#demo" class="cta-button secondary" onclick="requestDemo('custom')">Schedule Consultation</a>
+            </div>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏥</div>
+                <h3>Multi-Tenant Architecture</h3>
+                <p>Manage multiple insurance companies from a single platform</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Policy Lifecycle</h3>
+                <p>Complete policy management from creation to claims</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Automated Claims</h3>
+                <p>Streamlined claims processing with approval workflows</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Advanced Analytics</h3>
+                <p>Real-time reporting and business intelligence</p>
+            </div>
+        </div>
+        
+        <div class="contact-section">
+            <h2>🤝 Need Help Getting Started?</h2>
+            <p>Our team is ready to help you choose the right plan and get you up and running quickly.</p>
+            <br>
+            <div>
+                <a href="mailto:hello@rozitech.com" class="cta-button">📧 Email Us</a>
+                <a href="tel:+27111234567" class="cta-button">📞 Call Us</a>
+                <a href="#live-chat" class="cta-button secondary" onclick="startLiveChat()">💬 Live Chat</a>
+            </div>
+            <br>
+            <p><strong>📍 Based in Johannesburg, South Africa</strong></p>
+            <p>🕐 Support Hours: Monday-Friday 8AM-6PM SAST</p>
+        </div>
+    </div>
+    
+    <script>
+        function startSignup(plan) {
+            // Track trial signup attempt
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'trial_signup_attempt', {
+                    'event_category': 'conversion',
+                    'event_label': plan,
+                    'custom_parameter_1': 'pricing_page',
+                    'value': plan === 'small' ? 250 : plan === 'growth' ? 1000 : plan === 'enterprise' ? 7500 : 0
+                });
+            }
+            
+            // Enhanced user experience with better messaging
+            const planNames = {
+                'small': 'Small Business',
+                'growth': 'Growth',
+                'enterprise': 'Enterprise',
+                'custom': 'Custom Enterprise'
+            };
+            const planPrices = {
+                'small': 'R2.50 per policy/month (up to 100 policies)',
+                'growth': 'R2.00 per policy/month (101-1,000 policies)',
+                'enterprise': 'R1.50 per policy/month (1,001-10,000 policies)',
+                'custom': 'Price on Application (10,000+ policies)'
+            };
+            
+            if(confirm(`🚀 Start Your Free Trial - ${planNames[plan]} Plan (${planPrices[plan]})\n\n✅ 30-day free trial\n✅ Full feature access\n✅ No setup fees\n✅ Cancel anytime\n\nClick OK to begin your trial signup.`)) {
+                // Track confirmed trial signup
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'trial_signup_confirmed', {
+                        'event_category': 'conversion',
+                        'event_label': plan,
+                        'custom_parameter_1': 'pricing_page',
+                        'value': plan === 'small' ? 250 : plan === 'growth' ? 1000 : plan === 'enterprise' ? 7500 : 0
+                    });
+                }
+                
+                // In production, this would go to your actual signup page
+                window.location.href = `mailto:hello@rozitech.com?subject=🚀 Free Trial Request - ${planNames[plan]} Plan&body=Hi Rozitech Team,%0A%0AI'm ready to start my 30-day free trial of the ${planNames[plan]} plan (${planPrices[plan]}).%0A%0APlease send me:%0A✅ Trial signup link%0A✅ Getting started guide%0A✅ Demo access details%0A%0ACompany: [Your Company Name]%0AUsers: [Estimated number of users]%0APhone: [Your contact number]%0A%0ALooking forward to transforming our insurance operations!%0A%0AThanks!`;
+            }
+        }
+        
+        function requestDemo(plan) {
+            // Track demo request attempt
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'demo_request_attempt', {
+                    'event_category': 'lead_generation',
+                    'event_label': plan,
+                    'custom_parameter_1': 'pricing_page',
+                    'value': 0.8 // High intent value
+                });
+            }
+            
+            const planNames = {
+                'starter': 'Starter',
+                'professional': 'Professional', 
+                'enterprise': 'Enterprise'
+            };
+            
+            if(confirm(`🎬 Schedule Live Demo - ${planNames[plan]} Plan\n\n📅 30-minute personalized demo\n🎯 See the complete Farmer Brown scenario\n💡 Ask questions in real-time\n📊 View admin dashboard features\n\nClick OK to request your demo.`)) {
+                // Track confirmed demo request
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'demo_request_confirmed', {
+                        'event_category': 'lead_generation',
+                        'event_label': plan,
+                        'custom_parameter_1': 'pricing_page',
+                        'value': 1
+                    });
+                }
+                
+                window.location.href = `mailto:hello@rozitech.com?subject=🎬 Demo Request - ${planNames[plan]} Plan&body=Hi Rozitech Team,%0A%0AI'd like to schedule a live demo of the ${planNames[plan]} plan.%0A%0APreferred demo topics:%0A✅ Complete Farmer Brown scenario walkthrough%0A✅ Multi-tenant insurance management%0A✅ Claims processing automation%0A✅ Admin dashboard and reporting%0A✅ API integrations and customization%0A%0ACompany: [Your Company Name]%0ACurrent system: [What you use now]%0AUsers: [Estimated number of users]%0APhone: [Your contact number]%0APreferred time: [Your availability]%0A%0AThanks!`;
+            }
+        }
+        
+        function contactSales() {
+            // Track enterprise sales contact
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'enterprise_sales_contact', {
+                    'event_category': 'lead_generation',
+                    'event_label': 'enterprise_custom',
+                    'custom_parameter_1': 'pricing_page',
+                    'value': 10000 // High value lead
+                });
+            }
+            
+            alert('🏢 Connecting you with our Enterprise Sales Team!\n\nOur specialists will help design a custom solution for your insurance company with volume pricing and dedicated support.');
+            window.location.href = 'mailto:hello@rozitech.com?subject=🏢 Enterprise Plan Inquiry - Custom Pricing&body=Hi Rozitech Enterprise Team,%0A%0AI'm interested in discussing enterprise solutions for our insurance company.%0A%0ACompany Details:%0A• Company: [Your Company Name]%0A• Current active policies: [Number of active policies]%0A• Insurance types: [Life, Funeral, Motor, Property, etc.]%0A• Current system: [What you use now]%0A• Timeline: [When do you need to go live]%0A%0APlease contact me to discuss:%0A✅ Volume discount pricing%0A✅ Custom feature requirements%0A✅ Implementation timeline%0A✅ Training and support needs%0A✅ Integration requirements%0A✅ Compliance and security%0A%0AContact Details:%0A• Phone: [Your contact number]%0A• Best time to call: [Your availability]%0A%0ALooking forward to transforming our insurance operations with Rozitech!%0A%0AThanks!';
+        }
+        
+        function startLiveChat() {
+            alert('Live chat feature coming soon!\n\nFor immediate assistance, please email hello@rozitech.com or call +27 11 123 4567');
+        }
+        
+        // Enhanced page tracking and user behavior analytics
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track page view
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'page_title': 'Get Started - Pricing Page',
+                    'page_location': window.location.href,
+                    'custom_parameter_1': 'pricing_page'
+                });
+            }
+            
+            // Track contact method clicks
+            document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'contact_click', {
+                            'event_category': 'lead_generation',
+                            'event_label': 'email',
+                            'custom_parameter_1': 'get_started_page'
+                        });
+                    }
+                });
+            });
+            
+            document.querySelectorAll('a[href^="tel:"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'contact_click', {
+                            'event_category': 'lead_generation',
+                            'event_label': 'phone',
+                            'custom_parameter_1': 'get_started_page'
+                        });
+                    }
+                });
+            });
+            
+            // Track plan card hover interactions
+            document.querySelectorAll('.plan-card').forEach(card => {
+                let hoverStartTime;
+                
+                card.addEventListener('mouseenter', function() {
+                    hoverStartTime = Date.now();
+                    const planName = card.querySelector('.plan-name').textContent.toLowerCase();
+                    
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'plan_hover', {
+                            'event_category': 'engagement',
+                            'event_label': planName,
+                            'custom_parameter_1': 'pricing_page'
+                        });
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (hoverStartTime) {
+                        const hoverDuration = Date.now() - hoverStartTime;
+                        const planName = card.querySelector('.plan-name').textContent.toLowerCase();
+                        
+                        // Track long hovers (>3 seconds) as high interest
+                        if (hoverDuration > 3000 && typeof gtag !== 'undefined') {
+                            gtag('event', 'plan_high_interest', {
+                                'event_category': 'engagement',
+                                'event_label': planName,
+                                'custom_parameter_1': 'long_hover',
+                                'value': Math.round(hoverDuration / 1000)
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Animate cards on scroll
+            const cards = document.querySelectorAll('.plan-card, .feature-card');
+            
+            function animateOnScroll() {
+                cards.forEach(card => {
+                    const cardTop = card.getBoundingClientRect().top;
+                    const cardVisible = 150;
+                    
+                    if (cardTop < window.innerHeight - cardVisible) {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }
+                });
+            }
+            
+            // Set initial state
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+            });
+            
+            // Animate immediately for visible cards
+            setTimeout(animateOnScroll, 100);
+            
+            // Animate on scroll
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // Track scroll depth
+            let maxScroll = 0;
+            function trackScrollDepth() {
+                const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+                
+                if (scrollPercent > maxScroll) {
+                    maxScroll = scrollPercent;
+                    
+                    // Track milestone scroll depths
+                    if (scrollPercent >= 25 && maxScroll < 25) {
+                        gtag('event', 'scroll_depth', {
+                            'event_category': 'engagement',
+                            'event_label': '25_percent',
+                            'custom_parameter_1': 'pricing_page'
+                        });
+                    } else if (scrollPercent >= 75 && maxScroll < 75) {
+                        gtag('event', 'scroll_depth', {
+                            'event_category': 'engagement',
+                            'event_label': '75_percent',
+                            'custom_parameter_1': 'pricing_page'
+                        });
+                    }
+                }
+            }
+            
+            // Throttled scroll tracking
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                if (scrollTimeout) {
+                    clearTimeout(scrollTimeout);
+                }
+                scrollTimeout = setTimeout(trackScrollDepth, 100);
+            });
+        });
+    </script>
+</body>
+</html>
