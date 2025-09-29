@@ -2,11 +2,11 @@
 Simple URL configuration for quick start
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-def home_view(request):
+def api_home_view(request):
     return JsonResponse({
         'message': 'Welcome to Rozitech SaaS Admin Platform!',
         'status': 'running',
@@ -22,8 +22,16 @@ def home_view(request):
     })
 
 urlpatterns = [
-    path('', home_view, name='home'),
+    # Marketing website (takes priority for root path)
+    path('', include('apps.marketing.urls')),
+    
+    # API home endpoint
+    path('api/home/', api_home_view, name='api_home'),
+    
+    # Admin
     path('admin/', admin.site.urls),
+    
+    # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
 ]

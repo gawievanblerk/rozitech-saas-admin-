@@ -20,6 +20,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_spectacular',
+    'apps.tenants',
+    'apps.marketing',
+    'apps.services',
+    'apps.subscriptions',
 ]
 
 MIDDLEWARE = [
