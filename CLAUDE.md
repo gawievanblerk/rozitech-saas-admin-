@@ -1,4 +1,4 @@
-# CLAUDE.md - Rozitech SaaS Admin Platform
+                    # CLAUDE.md - Rozitech SaaS Admin Platform
 
 This file provides guidance for working with the Rozitech SaaS Admin Platform - a comprehensive multi-tenant SaaS management system.
 

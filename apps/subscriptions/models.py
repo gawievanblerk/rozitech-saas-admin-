@@ -90,7 +90,13 @@ class Subscription(models.Model):
     
     # Subscription details
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='trial')
-    
+    product_code = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Product code for this subscription (e.g., 'teamspace', 'insurr')"
+    )
+
     # Billing dates
     started_at = models.DateTimeField(default=timezone.now)
     trial_end_date = models.DateTimeField(blank=True, null=True)
