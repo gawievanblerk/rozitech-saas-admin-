@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = 'django-insecure-for-development-only-change-in-production'
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '154.65.107.234', 'saas.rozitech.com', 'admin.rozitech.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',

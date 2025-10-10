@@ -4,14 +4,14 @@ After=network.target
 
 [Service]
 Type=notify
-User=root
-Group=root
+User=ubuntu
+Group=ubuntu
 RuntimeDirectory=gunicorn
 WorkingDirectory=/opt/rozitech-saas-admin
 Environment="DJANGO_SETTINGS_MODULE=config.settings.quickstart"
 ExecStart=/opt/rozitech-saas-admin/venv/bin/gunicorn \
     --workers 3 \
-    --bind unix:/run/gunicorn-rozitech-saas.sock \
+    --bind unix:/opt/rozitech-saas-admin/run/gunicorn.sock \
     --timeout 120 \
     --access-logfile /var/log/gunicorn/access.log \
     --error-logfile /var/log/gunicorn/error.log \
