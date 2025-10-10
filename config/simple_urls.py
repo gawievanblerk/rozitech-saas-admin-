@@ -24,14 +24,19 @@ def api_home_view(request):
 urlpatterns = [
     # Marketing website (takes priority for root path)
     path('', include('apps.marketing.urls')),
-    
+
     # API home endpoint
     path('api/home/', api_home_view, name='api_home'),
-    
+
     # Admin
     path('admin/', admin.site.urls),
-    
+
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
+
+    # TeamSpace SSO Integration API endpoints
+    path('api/auth/', include('apps.authentication.urls')),
+    path('api/organizations/', include('apps.tenants.urls')),
+    path('api/subscriptions/', include('apps.subscriptions.urls')),
 ]

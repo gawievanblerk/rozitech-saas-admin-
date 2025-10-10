@@ -26,9 +26,11 @@ urlpatterns = [
     path('api/v1/services/', include('apps.services.urls')),
     path('api/v1/analytics/', include('apps.analytics.urls')),
     path('api/v1/notifications/', include('apps.notifications.urls')),
-    
-    # Authentication
-    path('api/auth/', include('rest_framework.urls')),
+
+    # TeamSpace SSO Integration (without versioning for compatibility)
+    path('api/auth/', include('apps.authentication.urls')),
+    path('api/organizations/', include('apps.tenants.urls')),
+    path('api/subscriptions/', include('apps.subscriptions.urls'))
 ]
 
 # Serve media files in development
