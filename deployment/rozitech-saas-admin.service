@@ -1,0 +1,28 @@
+[Unit]
+Description=Rozitech SaaS Admin - TeamSpace SSO API
+After=network.target
+
+[Service]
+Type=notify
+User=root
+Group=root
+RuntimeDirectory=gunicorn
+WorkingDirectory=/opt/rozitech-saas-admin
+Environment="DJANGO_SETTINGS_MODULE=config.settings.quickstart"
+ExecStart=/opt/rozitech-saas-admin/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/run/gunicorn-rozitech-saas.sock \
+    --timeout 120 \
+    --access-logfile /var/log/gunicorn/access.log \
+    --error-logfile /var/log/gunicorn/error.log \
+    --log-level info \
+    config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
