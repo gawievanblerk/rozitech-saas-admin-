@@ -20,7 +20,7 @@ from apps.services.tasks import (
     provision_service, check_service_health,
     collect_service_metrics
 )
-from apps.tenants.models import Tenant
+from apps.tenants.models import Organization
 
 User = get_user_model()
 
@@ -49,9 +49,11 @@ class ServiceModelTests(TestCase):
             min_storage_gb=Decimal('5.0')
         )
         
-        self.tenant = Tenant.objects.create(
+        self.tenant = Organization.objects.create(
+            schema_name='test_tenant',
             name='Test Tenant',
-            domain='test.example.com',
+            slug='test-tenant',
+            email='test@example.com',
             is_active=True
         )
     
@@ -152,9 +154,11 @@ class ProvisioningTests(TestCase):
     """Tests for provisioning framework"""
     
     def setUp(self):
-        self.tenant = Tenant.objects.create(
+        self.tenant = Organization.objects.create(
+            schema_name='test_tenant',
             name='Test Tenant',
-            domain='test.example.com',
+            slug='test-tenant',
+            email='test@example.com',
             is_active=True
         )
         
@@ -248,9 +252,11 @@ class ProvisioningTaskTests(TestCase):
     """Tests for provisioning tasks"""
     
     def setUp(self):
-        self.tenant = Tenant.objects.create(
+        self.tenant = Organization.objects.create(
+            schema_name='test_tenant',
             name='Test Tenant',
-            domain='test.example.com',
+            slug='test-tenant',
+            email='test@example.com',
             is_active=True
         )
         
@@ -349,9 +355,11 @@ class ServiceAPITests(TestCase):
             password='testpassword'
         )
         
-        self.tenant = Tenant.objects.create(
+        self.tenant = Organization.objects.create(
+            schema_name='test_tenant',
             name='Test Tenant',
-            domain='test.example.com',
+            slug='test-tenant',
+            email='test@example.com',
             is_active=True
         )
         

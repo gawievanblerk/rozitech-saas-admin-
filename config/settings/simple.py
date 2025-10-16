@@ -58,8 +58,9 @@ DATABASES = {
 
 # Remove tenant-specific settings
 DATABASE_ROUTERS = ()
-TENANT_MODEL = None
-TENANT_DOMAIN_MODEL = None
+# Still need to define these for DomainMixin to work
+TENANT_MODEL = "tenants.Organization"
+TENANT_DOMAIN_MODEL = "tenants.Domain"
 
 # Email backend for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
