@@ -113,7 +113,7 @@ DATABASE_ROUTERS = (
 )
 
 # Multi-tenant configuration
-TENANT_MODEL = "tenants.Tenant"
+TENANT_MODEL = "tenants.Organization"
 TENANT_DOMAIN_MODEL = "tenants.Domain"
 
 # Cache
