@@ -3,13 +3,18 @@ Simplified tenant models without django-tenants dependency
 """
 from django.db import models
 from django.contrib.auth.models import User
+from django_tenants.models import TenantMixin, DomainMixin
 import uuid
 
 
-class Organization(models.Model):
+class Organization(TenantMixin):
     """
     Organization model (simplified version of Tenant)
     """
+    # TenantMixin fields (explicitly defined to match migration)
+    auto_create_schema = models.BooleanField(default=True)
+    auto_drop_schema = models.BooleanField(default=False)
+
     TIER_CHOICES = [
         ('free', 'Free Tier'),
         ('starter', 'Starter'),
@@ -17,7 +22,7 @@ class Organization(models.Model):
         ('enterprise', 'Enterprise'),
         ('custom', 'Custom'),
     ]
-    
+
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('suspended', 'Suspended'),
@@ -25,7 +30,7 @@ class Organization(models.Model):
         ('trial', 'Trial'),
         ('pending', 'Pending Setup'),
     ]
-    
+
     # Basic Information
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, help_text="Organization name")
@@ -106,24 +111,26 @@ class OrganizationUser(models.Model):
         return f"{self.user.username} @ {self.organization.name} ({self.role})"
 
 
-class Domain(models.Model):
+class Domain(DomainMixin):
     """
-    Custom domains for organizations
+    Custom domains for organizations - inherits from DomainMixin
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='domains')
-    domain = models.CharField(max_length=253, unique=True)
-    is_primary = models.BooleanField(default=False)
+    # DomainMixin provides: id (AutoField), tenant (ForeignKey), domain (CharField), is_primary (BooleanField)
     is_verified = models.BooleanField(default=False)
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     verified_at = models.DateTimeField(blank=True, null=True)
-    
+
     class Meta:
         db_table = 'organization_domains'
         verbose_name = 'Organization Domain'
         verbose_name_plural = 'Organization Domains'
-    
+
     def __str__(self):
         return f"{self.domain} ({'Primary' if self.is_primary else 'Secondary'})"
+
+    @property
+    def organization(self):
+        """Alias for tenant to maintain backwards compatibility"""
+        return self.tenant

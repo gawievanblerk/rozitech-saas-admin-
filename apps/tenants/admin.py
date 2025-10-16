@@ -74,7 +74,7 @@ class OrganizationUserAdmin(admin.ModelAdmin):
 
 @admin.register(Domain)
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ['domain', 'organization', 'is_primary', 'is_verified', 'created_at']
+    list_display = ['domain', 'tenant', 'is_primary', 'is_verified', 'created_at']
     list_filter = ['is_primary', 'is_verified', 'created_at']
-    search_fields = ['domain', 'organization__name']
-    raw_id_fields = ['organization']
+    search_fields = ['domain', 'tenant__name']
+    raw_id_fields = ['tenant']

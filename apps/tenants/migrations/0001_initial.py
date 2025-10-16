@@ -19,6 +19,9 @@ class Migration(migrations.Migration):
             name='Organization',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('schema_name', models.CharField(db_index=True, max_length=63, unique=True, validators=[django.core.validators.RegexValidator('^[a-z0-9_]+$', 'Only lowercase alphanumeric characters and underscores are allowed')])),
+                ('auto_create_schema', models.BooleanField(default=True)),
+                ('auto_drop_schema', models.BooleanField(default=False)),
                 ('name', models.CharField(help_text='Organization name', max_length=255)),
                 ('slug', models.SlugField(help_text='URL-friendly identifier', max_length=100, unique=True)),
                 ('email', models.EmailField(help_text='Primary contact email', max_length=254)),
@@ -50,13 +53,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Domain',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('domain', models.CharField(max_length=253, unique=True)),
-                ('is_primary', models.BooleanField(default=False)),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('domain', models.CharField(db_index=True, max_length=253, unique=True)),
+                ('is_primary', models.BooleanField(db_index=True, default=True)),
                 ('is_verified', models.BooleanField(default=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('verified_at', models.DateTimeField(blank=True, null=True)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='domains', to='tenants.organization')),
+                ('tenant', models.ForeignKey(db_column='tenant_id', on_delete=django.db.models.deletion.CASCADE, related_name='domains', to='tenants.organization')),
             ],
             options={
                 'verbose_name': 'Organization Domain',

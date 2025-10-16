@@ -45,6 +45,8 @@ SHARED_APPS = [
     'core',
     'apps.tenants',
     'apps.services',
+    'apps.products',  # Product catalog (shared)
+    'apps.subscriptions',  # Subscription models (shared - referenced by products)
 ]
 
 TENANT_APPS = [
@@ -52,9 +54,8 @@ TENANT_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
-    
+
     # Tenant-specific apps
-    'apps.subscriptions',
     'apps.payments',
     'apps.analytics',
     'apps.notifications',
