@@ -30,6 +30,7 @@ class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, help_text="Organization name")
     slug = models.SlugField(max_length=100, unique=True, help_text="URL-friendly identifier")
+    schema_name = models.CharField(max_length=63, unique=True, blank=True, null=True, help_text="PostgreSQL schema name for tenant isolation")
     
     # Contact Information
     email = models.EmailField(help_text="Primary contact email")
