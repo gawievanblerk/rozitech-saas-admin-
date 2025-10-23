@@ -60,7 +60,8 @@ class OrganizationUserAdmin(admin.ModelAdmin):
     list_filter = ['role', 'is_active', 'created_at']
     search_fields = ['user__username', 'user__email', 'organization__name']
     raw_id_fields = ['user', 'organization']
-    
+    readonly_fields = ['created_at', 'updated_at']
+
     fieldsets = (
         ('Relationship', {
             'fields': ('organization', 'user', 'role', 'is_active')

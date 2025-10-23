@@ -10,11 +10,8 @@ import uuid
 class Organization(TenantMixin):
     """
     Organization model with multi-tenant support via TenantMixin
+    Note: auto_create_schema and auto_drop_schema are inherited from TenantMixin
     """
-    # TenantMixin fields (explicitly defined to match migration)
-    auto_create_schema = models.BooleanField(default=True)
-    auto_drop_schema = models.BooleanField(default=False)
-
     TIER_CHOICES = [
         ('free', 'Free Tier'),
         ('starter', 'Starter'),
