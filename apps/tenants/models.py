@@ -1,5 +1,5 @@
 """
-Simplified tenant models without django-tenants dependency
+Tenant models with django-tenants support
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -9,7 +9,7 @@ import uuid
 
 class Organization(TenantMixin):
     """
-    Organization model (simplified version of Tenant)
+    Organization model with multi-tenant support via TenantMixin
     """
     # TenantMixin fields (explicitly defined to match migration)
     auto_create_schema = models.BooleanField(default=True)
@@ -133,5 +133,10 @@ class Domain(DomainMixin):
 
     @property
     def organization(self):
-        """Alias for tenant to maintain backwards compatibility"""
+        """Alias for tenant field to maintain backward compatibility"""
         return self.tenant
+
+    @organization.setter
+    def organization(self, value):
+        """Alias setter for tenant field"""
+        self.tenant = value
