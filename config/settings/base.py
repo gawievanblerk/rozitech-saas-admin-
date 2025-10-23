@@ -33,14 +33,14 @@ SHARED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Third party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
     'drf_spectacular',
-    
+
     # Core apps (shared across tenants)
     'core',
     'apps.tenants',
@@ -64,7 +64,7 @@ TENANT_APPS = [
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware',
+    'apps.tenants.middleware.TenantMainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -158,8 +158,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'core.authentication.RemoteJWTAuthentication',  # Primary: Remote auth server
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Fallback: Local JWT
+        'rest_framework.authentication.SessionAuthentication',  # Django sessions
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -173,6 +174,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+# Auth Server Configuration
+AUTH_SERVICE_URL = env('AUTH_SERVICE_URL', default='http://localhost:4000')
+AUTH_SERVICE_TIMEOUT = env.int('AUTH_SERVICE_TIMEOUT', default=5)
 
 # Spectacular settings for API documentation
 SPECTACULAR_SETTINGS = {
@@ -237,3 +242,20 @@ LOGGING = {
 
 # Create logs directory if it doesn't exist
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+
+# =============================================================================
+# STRIPE CONFIGURATION
+# =============================================================================
+STRIPE_API_KEY = env('STRIPE_API_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+
+# Billing Configuration
+BILLING = {
+    'DEFAULT_CURRENCY': 'USD',
+    'SUPPORTED_CURRENCIES': ['USD', 'ZAR'],
+    'TAX_RATE': 0.0,  # Configurable per region
+    'PAYMENT_RETRY_ATTEMPTS': 3,
+    'GRACE_PERIOD_DAYS': 7,
+    'TRIAL_PERIOD_DAYS': 14,
+}

@@ -1,0 +1,69 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Production Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          SERVER_HOST: ${{ secrets.HETZNER_SERVER_HOST }}
+          SERVER_USER: ${{ secrets.HETZNER_SERVER_USER }}
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+          # Deploy to server
+          ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            cd /opt/rozitech-saas-admin
+
+            # Pull latest code
+            git fetch origin
+            git checkout main
+            git pull origin main
+
+            # Activate virtual environment
+            source venv/bin/activate || source env/bin/activate
+
+            # Install new dependencies
+            pip install djangorestframework-simplejwt
+
+            # Run migrations
+            python manage.py migrate subscriptions
+            python manage.py migrate authentication
+
+            # Collect static files
+            python manage.py collectstatic --noinput
+
+            # Run tests
+            python manage.py test apps.authentication.tests
+
+            # Restart services
+            sudo systemctl restart gunicorn-rozitech-saas || true
+            sudo systemctl reload nginx || true
+
+            echo "Deployment completed successfully!"
+          ENDSSH
+
+      - name: Verify Deployment
+        env:
+          SERVER_HOST: ${{ secrets.HETZNER_SERVER_HOST }}
+        run: |
+          # Wait for services to restart
+          sleep 10
+
+          # Test endpoints
+          curl -f https://$SERVER_HOST/api/docs/ || echo "API docs endpoint check failed"
